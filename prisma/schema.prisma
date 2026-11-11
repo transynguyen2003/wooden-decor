@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 1. Bảng Quản trị viên (Chủ shop) - Mục 6.1 & 7 URD
+model AdminUser {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  passwordHash   String
+  name           String    @default("Chủ cửa hàng")
+  failedAttempts Int       @default(0)
+  lockedUntil    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+// 2. Bảng Danh mục sản phẩm (Bàn, Ghế, Giường, Kệ...) - Mục 6.5 & 15.2 URD
+model Category {
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  nameVi        String
+  nameEn        String    @default("")
+  descriptionVi String    @default("")
+  descriptionEn String    @default("")
+  imageUrl      String    @default("")
+  sortOrder     Int       @default(0)
+  products      Product[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// 3. Bảng Bộ sưu tập theo phong cách/không gian - Mục 15.2 URD
+model Collection {
+  id            String              @id @default(cuid())
+  slug          String              @unique
+  nameVi        String
+  nameEn        String              @default("")
+  descriptionVi String              @default("")
+  descriptionEn String              @default("")
+  imageUrl      String              @default("")
+  isFeatured    Boolean             @default(true)
+  sortOrder     Int                 @default(0)
+  products      ProductCollection[]
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+}
+
+// 4. Bảng Sản phẩm - Mục 6.3, 7, 15.1, 15.3 URD
+model Product {
+  id             String              @id @default(cuid())
+  slug           String              @unique
+  categoryId     String
+  category       Category            @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  nameVi         String
+  nameEn         String              @default("")
+  price          Int?                // Giá VND (VD: 45000000). Để trống hoặc bật isContactPrice nếu "Liên hệ"
+  isContactPrice Boolean             @default(false)
+  priceNoteVi    String              @default("")
+  priceNoteEn    String              @default("")
+  materialVi     String              @default("")
+  materialEn     String              @default("")
+  dimensionsVi   String              @default("")
+  dimensionsEn   String              @default("")
+  descriptionVi  String              @default("")
+  descriptionEn  String              @default("")
+  stockStatus    String              @default("IN_STOCK") // "IN_STOCK" (Còn hàng) | "OUT_OF_STOCK" (Hết hàng)
+  isVisible      Boolean             @default(true)       // Hiển thị hoặc Ẩn trên web khách
+  isFeatured     Boolean             @default(false)      // Sản phẩm nổi bật ở trang chủ
+  publishedAt    DateTime            @default(now())      // Hỗ trợ hẹn giờ hiển thị (Mục 15.4)
+  images         ProductImage[]
+  collections    ProductCollection[]
+  inquiries      Inquiry[]
+  posts          PostProduct[]
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+}
+
+// 5. Bảng nối Sản phẩm - Bộ sưu tập (Quan hệ nhiều - nhiều) - Mục 15.2 URD
+model ProductCollection {
+  productId    String
+  collectionId String
+  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@id([productId, collectionId])
+}
+
+// 6. Bảng Hình ảnh sản phẩm - Mục 6.4 & 7 URD
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  altVi     String   @default("")
+  altEn     String   @default("")
+  sortOrder Int      @default(0)
+  isCover   Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// 7. Bảng Yêu cầu tư vấn của khách - Mục 5.5, 6.6 & 7 URD
+model Inquiry {
+  id           String   @id @default(cuid())
+  customerName String
+  phone        String
+  message      String   @default("")
+  productId    String?
+  product      Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  status       String   @default("NEW") // "NEW" (Mới) | "CONTACTED" (Đã liên hệ) | "COMPLETED" (Hoàn tất)
+  internalNote String   @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// 8. Bảng Bài đăng / Cảm hứng Decor hằng ngày - Mục 15.4 URD
+model Post {
+  id          String        @id @default(cuid())
+  slug        String        @unique
+  titleVi     String
+  titleEn     String        @default("")
+  excerptVi   String        @default("")
+  excerptEn   String        @default("")
+  contentVi   String        @default("")
+  contentEn   String        @default("")
+  coverImage  String        @default("")
+  isPublished Boolean       @default(true)
+  publishedAt DateTime      @default(now())
+  products    PostProduct[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+// 9. Bảng nối Bài đăng - Sản phẩm liên quan - Mục 15.4 URD
+model PostProduct {
+  postId    String
+  productId String
+  post      Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([postId, productId])
+}
+
+// 10. Bảng Cài đặt chung của Web (Logo, SĐT, Zalo, Địa chỉ, Banner, Tỷ giá USD...) - Mục 6.7 & 7 URD
+model SiteSetting {
+  key       String   @id
+  valueVi   String   @default("")
+  valueEn   String   @default("")
+  group     String   @default("general") // "general" | "banner" | "about" | "contact"
+  updatedAt DateTime @updatedAt
+}
