@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F7F3EC;
+    --wood-light: #D9C2A3;
+    --wood-medium: #A9784B;
+    --wood-dark: #5B3A29;
+    --text-primary: #2B2118;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background-color: #FFFFFF;
+    color: #2B2118;
+  }
+
+  body {
+    font-family: var(--font-be-vietnam), system-ui, -apple-system, sans-serif;
+    background-color: #FFFFFF;
+    color: #2B2118;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, .font-serif {
+    font-family: var(--font-playfair), Georgia, serif;
+  }
+}
+
+/* Hiệu ứng xuất hiện nhẹ nhàng kiểu Apple (dưới 0.5 giây) */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeSlideUp 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Mục 4 URD: Tự động tắt chuyển động khi thiết bị đặt chế độ giảm chuyển động */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
