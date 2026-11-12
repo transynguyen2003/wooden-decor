@@ -20,18 +20,8 @@ import ProductCard from "@/components/client/ProductCard";
 export const revalidate = 60;
 
 export async function generateStaticParams() {
-  try {
-    const products = await prisma.product.findMany({
-      where: { isVisible: true },
-      select: { slug: true },
-    });
-    return products.flatMap((p) => [
-      { locale: "vi", slug: p.slug },
-      { locale: "en", slug: p.slug },
-    ]);
-  } catch {
-    return [];
-  }
+  // Trang chi tiết được dựng khi có người truy cập đầu tiên rồi lưu đệm (ISR), tránh quá tải DB lúc build
+  return [];
 }
 
 // Mục 5.4 & 9 URD: Tạo thông tin chia sẻ Zalo, Facebook (OpenGraph) và SEO cho từng sản phẩm

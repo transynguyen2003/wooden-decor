@@ -10,6 +10,9 @@ const nextConfig = {
     ],
   },
   experimental: {
+    // Giảm số trang build song song để không làm cạn kết nối Database
+    staticGenerationMaxConcurrency: 2,
+    staticGenerationRetryCount: 3,
     // Giữ cache trang đã tải ở trình duyệt để chuyển qua lại giữa các trang tức thì (0ms delay)
     staleTimes: {
       dynamic: 120,

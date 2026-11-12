@@ -10,18 +10,8 @@ import ProductCard from "@/components/client/ProductCard";
 export const revalidate = 60;
 
 export async function generateStaticParams() {
-  try {
-    const posts = await prisma.post.findMany({
-      where: { isPublished: true },
-      select: { slug: true },
-    });
-    return posts.flatMap((p) => [
-      { locale: "vi", slug: p.slug },
-      { locale: "en", slug: p.slug },
-    ]);
-  } catch {
-    return [];
-  }
+  // Trang chi tiết được dựng khi có người truy cập đầu tiên rồi lưu đệm (ISR), tránh quá tải DB lúc build
+  return [];
 }
 
 export default async function InspirationDetailPage({
