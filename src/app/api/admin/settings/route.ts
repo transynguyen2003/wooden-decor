@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
+import { invalidateSiteConfigCache } from "@/lib/settings";
 
 export async function GET() {
   const session = await getAdminSession();
@@ -43,6 +45,9 @@ export async function PUT(request: Request) {
       },
     });
   }
+
+  invalidateSiteConfigCache();
+  revalidatePath("/", "layout");
 
   return NextResponse.json({ success: true });
 }

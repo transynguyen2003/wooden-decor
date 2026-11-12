@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-import { Phone, MessageCircle, LogOut } from "lucide-react";
+import { Phone } from "lucide-react";
 import { Locale } from "@/lib/i18n";
+import { ZaloIcon } from "./SocialIcons";
 
 interface FloatingContactProps {
   phone: string;
@@ -33,7 +34,7 @@ export default function FloatingContact({
         aria-label="Chat Zalo"
         className="min-h-[44px] flex items-center gap-2 bg-wood-white/95 backdrop-blur-sm border-2 border-wood-medium text-wood-dark px-3.5 sm:px-4 py-2.5 rounded-full shadow-lg hover:bg-wood-cream transition-all"
       >
-        <MessageCircle className="w-5 h-5 text-wood-medium shrink-0" />
+        <ZaloIcon className="w-5 h-5 shrink-0" />
         <span className="text-xs font-semibold tracking-wide">
           {locale === "en" ? "Zalo" : "Chat Zalo"}
         </span>

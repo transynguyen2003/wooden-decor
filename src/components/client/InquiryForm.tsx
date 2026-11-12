@@ -101,7 +101,7 @@ export default function InquiryForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl bg-wood-cream/90 border border-wood-light/70 p-6 sm:p-8 space-y-5"
+      className="rounded-2xl bg-wood-cream/90 border border-wood-light/70 p-5 sm:p-8 space-y-5"
     >
       <div>
         <h3 className="font-serif text-2xl font-bold text-wood-dark">

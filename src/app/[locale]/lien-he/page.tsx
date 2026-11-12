@@ -1,10 +1,12 @@
 import React from "react";
-import { MapPin, Clock, Phone, Mail, MessageCircle } from "lucide-react";
+import { MapPin, Phone, Mail } from "lucide-react";
 import { getDictionary, isValidLocale, Locale } from "@/lib/i18n";
 import { getSiteConfig } from "@/lib/settings";
 import InquiryForm from "@/components/client/InquiryForm";
+import LazyMap from "@/components/client/LazyMap";
+import { ZaloIcon } from "@/components/client/SocialIcons";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function ContactPage({
   params,
@@ -20,12 +22,12 @@ export default async function ContactPage({
   const cleanZalo = siteConfig.zalo.replace(/\D/g, "") || cleanPhone.replace(/\D/g, "");
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
-      <div className="bg-wood-cream rounded-3xl p-8 sm:p-12 border border-wood-light/50 space-y-3">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-16">
+      <div className="bg-wood-cream rounded-3xl p-6 sm:p-10 lg:p-12 border border-wood-light/50 space-y-3">
         <span className="text-xs uppercase tracking-[0.2em] text-wood-medium font-semibold">
           {siteConfig.brandName}
         </span>
-        <h1 className="font-serif text-3xl sm:text-5xl font-bold text-wood-dark">
+        <h1 className="font-serif text-[1.75rem] leading-tight sm:text-4xl lg:text-5xl font-bold text-wood-dark">
           {dict.nav.contact}
         </h1>
         <p className="text-sm sm:text-base text-wood-charcoal/80 max-w-2xl">
@@ -33,10 +35,10 @@ export default async function ContactPage({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
         {/* Cột thông tin liên hệ & bản đồ */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-wood-white rounded-2xl p-6 sm:p-8 border border-wood-light/60 space-y-5 shadow-sm">
+          <div className="bg-wood-white rounded-2xl p-5 sm:p-8 border border-wood-light/60 space-y-5 shadow-sm">
             <h2 className="font-serif text-2xl font-bold text-wood-dark">
               {siteConfig.brandName}
             </h2>
@@ -46,14 +48,6 @@ export default async function ContactPage({
               <div>
                 <p className="font-semibold text-wood-dark">{dict.footer.address}</p>
                 <p className="text-wood-charcoal/80 mt-0.5">{siteConfig.address}</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3.5 text-sm">
-              <Clock className="w-5 h-5 text-wood-medium shrink-0 mt-0.5" />
-              <div>
-                <p className="font-semibold text-wood-dark">{dict.footer.openingHours}</p>
-                <p className="text-wood-charcoal/80 mt-0.5">{siteConfig.openingHours}</p>
               </div>
             </div>
 
@@ -76,7 +70,7 @@ export default async function ContactPage({
                 <p className="font-semibold text-wood-dark">Email</p>
                 <a
                   href={`mailto:${siteConfig.email}`}
-                  className="text-wood-charcoal/80 hover:text-wood-dark"
+                  className="text-wood-charcoal/80 hover:text-wood-dark break-all"
                 >
                   {siteConfig.email}
                 </a>
@@ -97,19 +91,14 @@ export default async function ContactPage({
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 bg-wood-cream hover:bg-wood-light/50 text-wood-dark border border-wood-medium text-xs font-semibold py-3 px-4 rounded-xl transition-colors"
               >
-                <MessageCircle className="w-4 h-4 text-wood-medium" />
+                <ZaloIcon className="w-4 h-4 shrink-0" />
                 <span>{dict.nav.chatZalo}</span>
               </a>
             </div>
           </div>
 
           <div className="rounded-2xl overflow-hidden border border-wood-light/60 h-72 bg-wood-cream">
-            <iframe
-              src={siteConfig.mapEmbedUrl}
-              title="Wooden Decor Map"
-              className="w-full h-full border-0"
-              loading="lazy"
-            />
+            <LazyMap src={siteConfig.mapEmbedUrl} title="Wooden Decor Map" />
           </div>
         </div>
 

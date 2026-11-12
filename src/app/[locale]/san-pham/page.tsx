@@ -7,8 +7,6 @@ import { getSiteConfig } from "@/lib/settings";
 import ProductCard from "@/components/client/ProductCard";
 import { Prisma } from "@prisma/client";
 
-export const dynamic = "force-dynamic";
-
 export default async function ProductListPage({
   params,
   searchParams,
@@ -27,7 +25,6 @@ export default async function ProductListPage({
   const locale: Locale = isValidLocale(rawLocale) ? rawLocale : "vi";
   const filters = await searchParams;
   const dict = getDictionary(locale);
-  const siteConfig = await getSiteConfig(locale);
 
   const categorySlug = filters.category || "";
   const collectionSlug = filters.collection || "";
@@ -83,20 +80,22 @@ export default async function ProductListPage({
     orderBy = { price: "desc" };
   }
 
-  const [categories, collections, totalCount, products] = await Promise.all([
-    prisma.category.findMany({ orderBy: { sortOrder: "asc" } }),
-    prisma.collection.findMany({ orderBy: { sortOrder: "asc" } }),
-    prisma.product.count({ where }),
-    prisma.product.findMany({
-      where,
-      include: {
-        category: true,
-        images: { orderBy: { sortOrder: "asc" } },
-      },
-      orderBy,
-      take: currentPage * pageSize,
-    }),
-  ]);
+  const [siteConfig, categories, collections, totalCount, products] =
+    await Promise.all([
+      getSiteConfig(locale),
+      prisma.category.findMany({ orderBy: { sortOrder: "asc" } }),
+      prisma.collection.findMany({ orderBy: { sortOrder: "asc" } }),
+      prisma.product.count({ where }),
+      prisma.product.findMany({
+        where,
+        include: {
+          category: true,
+          images: { orderBy: { sortOrder: "asc" } },
+        },
+        orderBy,
+        take: currentPage * pageSize,
+      }),
+    ]);
 
   const hasMore = products.length < totalCount;
 
@@ -122,14 +121,14 @@ export default async function ProductListPage({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-6 sm:space-y-10">
       {/* Tiêu đề trang */}
-      <div className="bg-wood-cream rounded-3xl p-8 sm:p-12 border border-wood-light/50 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+      <div className="bg-wood-cream rounded-3xl p-6 sm:p-10 lg:p-12 border border-wood-light/50 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
         <div className="space-y-2 max-w-2xl">
           <span className="text-xs uppercase tracking-[0.2em] text-wood-medium font-semibold">
             {siteConfig.brandName}
           </span>
-          <h1 className="font-serif text-3xl sm:text-5xl font-bold text-wood-dark">
+          <h1 className="font-serif text-[1.75rem] leading-tight sm:text-4xl lg:text-5xl font-bold text-wood-dark">
             {dict.products.title}
           </h1>
           <p className="text-sm sm:text-base text-wood-charcoal/80">
@@ -159,7 +158,7 @@ export default async function ProductListPage({
       </div>
 
       {/* Bộ lọc nhanh theo Danh mục, Bộ sưu tập, Khoảng giá & Sắp xếp (Mục 3, 5.3, 15.2 URD) */}
-      <div className="space-y-5 bg-wood-white rounded-2xl p-6 border border-wood-light/50 shadow-sm">
+      <div className="space-y-4 sm:space-y-5 bg-wood-white rounded-2xl p-4 sm:p-6 border border-wood-light/50 shadow-sm">
         {/* Hàng 1: Lọc Danh mục */}
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-semibold uppercase tracking-wider text-wood-medium mr-2 flex items-center gap-1.5">
@@ -248,7 +247,7 @@ export default async function ProductListPage({
             ))}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-semibold uppercase tracking-wider text-wood-medium">
               {dict.products.sortBy}:
             </span>
@@ -274,7 +273,7 @@ export default async function ProductListPage({
       </div>
 
       {/* Kết quả hiển thị */}
-      <div className="flex items-center justify-between text-xs text-wood-charcoal/70">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-wood-charcoal/70">
         <p>
           {dict.products.showingCount} <strong>{products.length}</strong> /{" "}
           <strong>{totalCount}</strong>{" "}
@@ -293,7 +292,7 @@ export default async function ProductListPage({
       </div>
 
       {products.length === 0 ? (
-        <div className="rounded-3xl bg-wood-cream/70 border border-wood-light/50 p-16 text-center space-y-4">
+        <div className="rounded-3xl bg-wood-cream/70 border border-wood-light/50 p-8 sm:p-16 text-center space-y-4">
           <p className="font-serif text-xl text-wood-dark">
             {dict.products.noProducts}
           </p>
@@ -307,7 +306,7 @@ export default async function ProductListPage({
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
             {products.map((product) => (
               <ProductCard
                 key={product.id}

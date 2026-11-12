@@ -2,7 +2,8 @@ import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { Phone, MessageCircle, CheckCircle2, Layers, Box, Tag } from "lucide-react";
+import { Phone, CheckCircle2, Layers, Box, Tag } from "lucide-react";
+import { ZaloIcon } from "@/components/client/SocialIcons";
 import { prisma } from "@/lib/prisma";
 import {
   getDictionary,
@@ -16,7 +17,7 @@ import ProductImageGallery from "@/components/client/ProductImageGallery";
 import InquiryForm from "@/components/client/InquiryForm";
 import ProductCard from "@/components/client/ProductCard";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 // Mục 5.4 & 9 URD: Tạo thông tin chia sẻ Zalo, Facebook (OpenGraph) và SEO cho từng sản phẩm
 export async function generateMetadata({
@@ -62,16 +63,18 @@ export default async function ProductDetailPage({
   const { locale: rawLocale, slug } = await params;
   const locale: Locale = isValidLocale(rawLocale) ? rawLocale : "vi";
   const dict = getDictionary(locale);
-  const siteConfig = await getSiteConfig(locale);
 
-  const product = await prisma.product.findUnique({
-    where: { slug },
-    include: {
-      category: true,
-      images: { orderBy: { sortOrder: "asc" } },
-      collections: { include: { collection: true } },
-    },
-  });
+  const [siteConfig, product] = await Promise.all([
+    getSiteConfig(locale),
+    prisma.product.findUnique({
+      where: { slug },
+      include: {
+        category: true,
+        images: { orderBy: { sortOrder: "asc" } },
+        collections: { include: { collection: true } },
+      },
+    }),
+  ]);
 
   if (!product || !product.isVisible) {
     notFound();
@@ -147,7 +150,7 @@ export default async function ProductDetailPage({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-20">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-12 sm:space-y-20">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -174,13 +177,13 @@ export default async function ProductDetailPage({
       </nav>
 
       {/* Bố cục 2 cột: Bộ ảnh bên trái + Thông tin cố định bên phải khi cuộn (Mục 3 & 5.4 URD) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
         {/* Cột trái: Bộ ảnh sản phẩm */}
-        <div className="lg:col-span-7 space-y-10">
+        <div className="lg:col-span-7 space-y-6 sm:space-y-10 min-w-0">
           <ProductImageGallery images={galleryImages} productName={name} />
 
           {/* Câu chuyện & Mô tả chi tiết kiểu cuộn dọc Apple */}
-          <div className="bg-wood-cream/60 rounded-2xl p-6 sm:p-8 border border-wood-light/50 space-y-4">
+          <div className="bg-wood-cream/60 rounded-2xl p-5 sm:p-8 border border-wood-light/50 space-y-4">
             <h2 className="font-serif text-2xl font-bold text-wood-dark">
               {locale === "en" ? "Craftsmanship & Story" : "Chi tiết chế tác & Mô tả"}
             </h2>
@@ -191,8 +194,8 @@ export default async function ProductDetailPage({
         </div>
 
         {/* Cột phải: Thông tin & Nút liên hệ giữ cố định khi cuộn (Sticky) */}
-        <div className="lg:col-span-5 lg:sticky lg:top-28 space-y-6">
-          <div className="bg-wood-white rounded-3xl p-6 sm:p-8 border border-wood-light/60 shadow-sm space-y-6">
+        <div className="lg:col-span-5 lg:sticky lg:top-28 space-y-6 min-w-0">
+          <div className="bg-wood-white rounded-3xl p-5 sm:p-8 border border-wood-light/60 shadow-sm space-y-6">
             <div className="flex flex-wrap items-center gap-2">
               <Link
                 href={`/${locale}/san-pham?category=${product.category.slug}`}
@@ -220,7 +223,7 @@ export default async function ProductDetailPage({
 
             {/* Giá hiển thị rõ ràng + Ghi chú giá */}
             <div className="p-4 rounded-2xl bg-wood-cream border border-wood-light/50">
-              <div className="text-2xl sm:text-3xl font-bold text-wood-dark">
+              <div className="text-xl sm:text-3xl font-bold text-wood-dark break-words">
                 {priceDisplay.primary}
               </div>
               {priceDisplay.secondary && (
@@ -295,7 +298,7 @@ export default async function ProductDetailPage({
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 bg-wood-cream hover:bg-wood-light/50 text-wood-dark border border-wood-medium font-semibold py-3.5 px-5 rounded-xl transition-colors text-sm"
                 >
-                  <MessageCircle className="w-4 h-4 text-wood-medium" />
+                  <ZaloIcon className="w-4 h-4 shrink-0" />
                   <span>{dict.products.zaloConsult}</span>
                 </a>
               </div>
@@ -326,7 +329,7 @@ export default async function ProductDetailPage({
           <h2 className="font-serif text-2xl sm:text-3xl font-bold text-wood-dark">
             {dict.products.relatedProducts}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-8">
             {relatedProducts.map((rel) => (
               <ProductCard
                 key={rel.id}

@@ -73,6 +73,7 @@ export default function ProductCard({
   return (
     <Link
       href={`/${locale}/san-pham/${product.slug}`}
+      prefetch={true}
       className="group flex flex-col bg-wood-white rounded-2xl overflow-hidden border border-wood-light/40 hover:border-wood-medium/70 transition-all duration-300 hover:shadow-md"
     >
       {/* Khung ảnh tỷ lệ 4:3 lớn, hỗ trợ đổi sang ảnh thứ 2 khi rê chuột */}
@@ -110,7 +111,7 @@ export default function ProductCard({
       </div>
 
       {/* Thông tin sản phẩm gọn gàng, sang trọng */}
-      <div className="p-5 flex flex-col flex-1 justify-between gap-3">
+      <div className="p-4 sm:p-5 flex flex-col flex-1 justify-between gap-3">
         <div>
           {categoryName && (
             <p className="text-xs uppercase tracking-widest text-wood-medium font-medium mb-1">
@@ -122,7 +123,7 @@ export default function ProductCard({
           </h3>
         </div>
 
-        <div className="pt-2 border-t border-wood-light/30 flex items-baseline justify-between gap-2">
+        <div className="pt-2 border-t border-wood-light/30 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1">
           <span
             className={`text-base font-semibold ${
               priceDisplay.isContact ? "text-wood-medium" : "text-wood-dark"

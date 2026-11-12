@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
+import CustomCursor from "@/components/client/CustomCursor";
 
 const playfair = Playfair_Display({
   subsets: ["latin", "vietnamese"],
@@ -34,8 +35,32 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi" className={`${playfair.variable} ${beVietnam.variable}`}>
-      <body className="min-h-screen flex flex-col bg-wood-white text-wood-charcoal selection:bg-wood-light selection:text-wood-charcoal">
+    <html
+      lang="vi"
+      suppressHydrationWarning
+      className={`${playfair.variable} ${beVietnam.variable}`}
+    >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var savedTheme = localStorage.getItem('wooden_decor_theme');
+                if (savedTheme === 'dark') {
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.remove('dark');
+                }
+              } catch (e) {}
+            `,
+          }}
+        />
+      </head>
+      <body
+        suppressHydrationWarning
+        className="min-h-screen flex flex-col bg-wood-white text-wood-charcoal selection:bg-wood-light selection:text-wood-charcoal"
+      >
+        <CustomCursor />
         {children}
       </body>
     </html>

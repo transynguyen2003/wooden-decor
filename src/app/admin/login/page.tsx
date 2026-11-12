@@ -44,8 +44,8 @@ export default function AdminLoginPage() {
         <div className="text-center space-y-3">
           <img
             src="/uploads/logo/logo.webp"
-            alt="Wooden Decor"
-            className="w-16 h-16 rounded-full mx-auto object-cover border border-wood-light"
+            alt="Thiên An - Wooden Decor"
+            className="w-16 h-16 mx-auto object-contain"
           />
           <h1 className="font-serif text-2xl sm:text-3xl font-bold text-wood-dark">
             Quản Trị Wooden Decor

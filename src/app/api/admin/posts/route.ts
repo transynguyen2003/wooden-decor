@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
 import { slugify } from "@/lib/i18n";
@@ -55,6 +56,7 @@ export async function POST(request: Request) {
     },
   });
 
+  revalidatePath("/", "layout");
   return NextResponse.json({ success: true, post: created });
 }
 
@@ -95,6 +97,7 @@ export async function PUT(request: Request) {
     },
   });
 
+  revalidatePath("/", "layout");
   return NextResponse.json({ success: true, post: updated });
 }
 
@@ -111,5 +114,6 @@ export async function DELETE(request: Request) {
   }
 
   await prisma.post.delete({ where: { id } });
+  revalidatePath("/", "layout");
   return NextResponse.json({ success: true });
 }

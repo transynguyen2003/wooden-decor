@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Save, Upload, Check, AlertCircle, Lock } from "lucide-react";
+import VideoManagerCard from "@/components/admin/VideoManagerCard";
 
 interface SettingEntry {
   key: string;
@@ -83,11 +84,13 @@ export default function AdminSettingsPage() {
     setSavedMsg("");
     setErrorMsg("");
 
-    const payload = Object.entries(formMap).map(([key, val]) => ({
-      key,
-      valueVi: val.vi,
-      valueEn: val.en,
-    }));
+    const payload = Object.entries(formMap)
+      .filter(([key]) => key !== "showcaseVideos")
+      .map(([key, val]) => ({
+        key,
+        valueVi: val.vi,
+        valueEn: val.en,
+      }));
 
     const res = await fetch("/api/admin/settings", {
       method: "PUT",
@@ -198,9 +201,9 @@ export default function AdminSettingsPage() {
               </label>
               <div className="flex items-center gap-3">
                 <img
-                  src={getVal("logoUrl", "vi") || "/uploads/logo/logo.webp"}
+                  src={getVal("logoUrl", "vi") || "/uploads/logo/logo-thien-an.webp"}
                   alt="Logo"
-                  className="w-11 h-11 rounded-full object-cover border border-wood-light"
+                  className="h-12 w-auto max-w-[180px] object-contain"
                 />
                 <label className="inline-flex items-center gap-1.5 cursor-pointer bg-wood-cream hover:bg-wood-light/50 text-wood-dark border border-wood-light px-3.5 py-2 rounded-xl text-xs font-semibold">
                   <Upload className="w-3.5 h-3.5" />
@@ -504,6 +507,52 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
+        {/* 5. Cấu hình Trợ lý AI Tư vấn Khách hàng */}
+        <div className="bg-wood-white rounded-2xl p-6 border border-wood-light/60 shadow-sm space-y-5">
+          <div>
+            <h2 className="font-serif text-xl font-bold text-wood-dark">
+              5. Cấu hình Trợ lý AI Tư vấn Khách hàng (24/7)
+            </h2>
+            <p className="text-xs text-wood-charcoal/70 mt-1">
+              Mặc định Trợ lý AI đã tự động đọc toàn bộ Sản phẩm, Giá, Chất liệu gỗ và Địa chỉ Showroom trong CSDL để trả lời khách ngay lập tức. Nếu bạn muốn nâng cấp lên mô hình Google Gemini AI, có thể điền API Key bên dưới.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold uppercase text-wood-charcoal mb-1">
+                Google Gemini API Key (Tùy chọn - Không bắt buộc)
+              </label>
+              <input
+                type="password"
+                value={getVal("geminiApiKey", "vi")}
+                onChange={(e) => {
+                  setVal("geminiApiKey", "vi", e.target.value);
+                  setVal("geminiApiKey", "en", e.target.value);
+                }}
+                placeholder="AIzaSy... (Để trống vẫn hoạt động với AI nội bộ)"
+                className="w-full rounded-xl bg-wood-cream/50 border border-wood-light px-3.5 py-2.5 text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase text-wood-charcoal mb-1">
+                Ghi chú dặn dò thêm cho AI (Chính sách ưu đãi, chiết khấu...)
+              </label>
+              <input
+                type="text"
+                value={getVal("aiCustomPrompt", "vi")}
+                onChange={(e) => {
+                  setVal("aiCustomPrompt", "vi", e.target.value);
+                  setVal("aiCustomPrompt", "en", e.target.value);
+                }}
+                placeholder="VD: Miễn phí vận chuyển nội thành TP.HCM, giảm 5% khi đặt комbo..."
+                className="w-full rounded-xl bg-wood-cream/50 border border-wood-light px-3.5 py-2.5 text-sm"
+              />
+            </div>
+          </div>
+        </div>
+
         <div className="flex justify-end">
           <button
             type="submit"
@@ -516,7 +565,10 @@ export default function AdminSettingsPage() {
         </div>
       </form>
 
-      {/* 5. Đổi mật khẩu quản trị viên (Mục 6.1 URD) */}
+      {/* Quản lý Video thực tế */}
+      <VideoManagerCard />
+
+      {/* 6. Đổi mật khẩu quản trị viên (Mục 6.1 URD) */}
       <form
         onSubmit={handleChangePassword}
         className="bg-wood-white rounded-2xl p-6 border border-wood-light/60 shadow-sm space-y-4 max-w-xl"

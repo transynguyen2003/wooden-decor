@@ -10,6 +10,7 @@ import {
   Layers,
   MessageSquareText,
   FileText,
+  Film,
   Settings,
   LogOut,
   ExternalLink,
@@ -37,6 +38,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     { href: "/admin/collections", label: "Bộ sưu tập", icon: Layers },
     { href: "/admin/inquiries", label: "Yêu cầu tư vấn", icon: MessageSquareText },
     { href: "/admin/posts", label: "Bài đăng hằng ngày", icon: FileText },
+    { href: "/admin/videos", label: "Video xưởng & thực tế", icon: Film },
     { href: "/admin/settings", label: "Cài đặt & Mật khẩu", icon: Settings },
   ];
 
@@ -49,8 +51,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             <Link href="/admin" className="flex items-center gap-2.5">
               <img
                 src="/uploads/logo/logo.webp"
-                alt="Wooden Decor"
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover border border-wood-light"
+                alt="Thiên An - Wooden Decor"
+                className="w-9 h-9 sm:w-10 sm:h-10 object-contain"
               />
               <div>
                 <span className="font-serif text-base sm:text-lg font-bold text-wood-dark block leading-none">

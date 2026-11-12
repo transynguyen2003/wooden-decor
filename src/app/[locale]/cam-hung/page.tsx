@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getDictionary, isValidLocale, Locale, tField } from "@/lib/i18n";
 import { getSiteConfig } from "@/lib/settings";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function InspirationListPage({
   params,
@@ -15,25 +15,27 @@ export default async function InspirationListPage({
   const { locale: rawLocale } = await params;
   const locale: Locale = isValidLocale(rawLocale) ? rawLocale : "vi";
   const dict = getDictionary(locale);
-  const siteConfig = await getSiteConfig(locale);
 
-  const posts = await prisma.post.findMany({
-    where: { isPublished: true },
-    orderBy: { publishedAt: "desc" },
-    include: {
-      products: {
-        include: { product: true },
+  const [siteConfig, posts] = await Promise.all([
+    getSiteConfig(locale),
+    prisma.post.findMany({
+      where: { isPublished: true },
+      orderBy: { publishedAt: "desc" },
+      include: {
+        products: {
+          include: { product: true },
+        },
       },
-    },
-  });
+    }),
+  ]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
-      <div className="bg-wood-cream rounded-3xl p-8 sm:p-12 border border-wood-light/50 space-y-3">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-12">
+      <div className="bg-wood-cream rounded-3xl p-6 sm:p-10 lg:p-12 border border-wood-light/50 space-y-3">
         <span className="text-xs uppercase tracking-[0.2em] text-wood-medium font-semibold">
           {siteConfig.brandName}
         </span>
-        <h1 className="font-serif text-3xl sm:text-5xl font-bold text-wood-dark">
+        <h1 className="font-serif text-[1.75rem] leading-tight sm:text-4xl lg:text-5xl font-bold text-wood-dark">
           {dict.home.inspirationTitle}
         </h1>
         <p className="text-sm sm:text-base text-wood-charcoal/80 max-w-2xl">
@@ -41,7 +43,7 @@ export default async function InspirationListPage({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
         {posts.map((post) => {
           const title = tField(post.titleVi, post.titleEn, locale);
           const excerpt = tField(post.excerptVi, post.excerptEn, locale);
@@ -58,7 +60,7 @@ export default async function InspirationListPage({
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
-              <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+              <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-xs text-wood-medium">
                     <Calendar className="w-3.5 h-3.5" />

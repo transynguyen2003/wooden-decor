@@ -6,7 +6,7 @@ import { getDictionary, isValidLocale, Locale, tField } from "@/lib/i18n";
 import { getSiteConfig } from "@/lib/settings";
 import ProductCard from "@/components/client/ProductCard";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function CollectionsPage({
   params,
@@ -16,33 +16,35 @@ export default async function CollectionsPage({
   const { locale: rawLocale } = await params;
   const locale: Locale = isValidLocale(rawLocale) ? rawLocale : "vi";
   const dict = getDictionary(locale);
-  const siteConfig = await getSiteConfig(locale);
 
-  const collections = await prisma.collection.findMany({
-    orderBy: { sortOrder: "asc" },
-    include: {
-      products: {
-        where: { product: { isVisible: true } },
-        include: {
-          product: {
-            include: {
-              category: true,
-              images: { orderBy: { sortOrder: "asc" } },
+  const [siteConfig, collections] = await Promise.all([
+    getSiteConfig(locale),
+    prisma.collection.findMany({
+      orderBy: { sortOrder: "asc" },
+      include: {
+        products: {
+          where: { product: { isVisible: true } },
+          include: {
+            product: {
+              include: {
+                category: true,
+                images: { orderBy: { sortOrder: "asc" } },
+              },
             },
           },
+          take: 3,
         },
-        take: 3,
       },
-    },
-  });
+    }),
+  ]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
-      <div className="bg-wood-cream rounded-3xl p-8 sm:p-12 border border-wood-light/50 space-y-3">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10 sm:space-y-16">
+      <div className="bg-wood-cream rounded-3xl p-6 sm:p-10 lg:p-12 border border-wood-light/50 space-y-3">
         <span className="text-xs uppercase tracking-[0.2em] text-wood-medium font-semibold">
           {siteConfig.brandName}
         </span>
-        <h1 className="font-serif text-3xl sm:text-5xl font-bold text-wood-dark">
+        <h1 className="font-serif text-[1.75rem] leading-tight sm:text-4xl lg:text-5xl font-bold text-wood-dark">
           {dict.home.collectionsTitle}
         </h1>
         <p className="text-sm sm:text-base text-wood-charcoal/80 max-w-2xl">
@@ -50,7 +52,7 @@ export default async function CollectionsPage({
         </p>
       </div>
 
-      <div className="space-y-20">
+      <div className="space-y-12 sm:space-y-20">
         {collections.map((col) => {
           const colName = tField(col.nameVi, col.nameEn, locale);
           const colDesc = tField(col.descriptionVi, col.descriptionEn, locale);
@@ -59,7 +61,7 @@ export default async function CollectionsPage({
           return (
             <section
               key={col.id}
-              className="space-y-8 pb-12 border-b border-wood-light/40 last:border-b-0"
+              className="space-y-6 sm:space-y-8 pb-10 sm:pb-12 border-b border-wood-light/40 last:border-b-0"
             >
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div className="space-y-2 max-w-2xl">
@@ -83,7 +85,7 @@ export default async function CollectionsPage({
                 </Link>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-8">
                 {items.map((product) => (
                   <ProductCard
                     key={product.id}

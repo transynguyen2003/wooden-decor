@@ -16,6 +16,7 @@
     scroll-behavior: smooth;
     background-color: #FFFFFF;
     color: #2B2118;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   body {
@@ -23,11 +24,183 @@
     background-color: #FFFFFF;
     color: #2B2118;
     -webkit-font-smoothing: antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    /* Chặn tràn ngang trên điện thoại (clip không phá vỡ header sticky như overflow:hidden) */
+    overflow-x: clip;
+  }
+
+  .theme-canvas {
+    overflow-x: clip;
+    max-width: 100vw;
+  }
+
+  img,
+  iframe,
+  video {
+    max-width: 100%;
   }
 
   h1, h2, h3, h4, .font-serif {
     font-family: var(--font-playfair), Georgia, serif;
   }
+}
+
+/* ==========================================================================
+   CHẾ ĐỘ TỐI (DARK MODE) - TÔNG NÂU TRẦM GỖ ÓC CHÓ (DEEP WALNUT SHOWROOM)
+   ========================================================================== */
+html.dark,
+html.dark body,
+html.dark .theme-canvas {
+  background-color: #1E130D !important; /* Nâu trầm sâu chủ đạo */
+  color: #EDE0D1 !important;
+}
+
+/* 1. Bề mặt thẻ (Card), Header, Thanh công cụ nổi */
+html.dark .bg-wood-white {
+  background-color: #281A12 !important;
+}
+html.dark .bg-wood-white\/95 {
+  background-color: rgba(40, 26, 18, 0.95) !important;
+}
+html.dark .bg-wood-white\/90 {
+  background-color: rgba(40, 26, 18, 0.90) !important;
+}
+html.dark .bg-wood-white\/85 {
+  background-color: rgba(34, 22, 15, 0.88) !important;
+}
+html.dark .hover\:bg-wood-white:hover {
+  background-color: #38251A !important;
+}
+
+/* 2. Bề mặt khối phụ (Secondary Panels, Footer, Filter Pills) */
+html.dark .bg-wood-cream {
+  background-color: #332117 !important;
+}
+html.dark .bg-wood-cream\/90 {
+  background-color: rgba(51, 33, 23, 0.92) !important;
+}
+html.dark .bg-wood-cream\/80 {
+  background-color: rgba(51, 33, 23, 0.85) !important;
+}
+html.dark .bg-wood-cream\/70,
+html.dark .bg-wood-cream\/65,
+html.dark .bg-wood-cream\/60 {
+  background-color: rgba(46, 30, 21, 0.78) !important;
+}
+html.dark .bg-wood-cream\/50,
+html.dark .bg-wood-cream\/40,
+html.dark .bg-wood-cream\/35 {
+  background-color: rgba(46, 30, 21, 0.55) !important;
+}
+html.dark .hover\:bg-wood-cream:hover,
+html.dark .hover\:bg-wood-cream\/80:hover,
+html.dark .hover\:bg-wood-cream\/60:hover {
+  background-color: #3F291D !important;
+}
+
+/* 3. Nền phụ ánh đồng nhẹ */
+html.dark .bg-wood-light\/20,
+html.dark .bg-wood-light\/25,
+html.dark .bg-wood-light\/30 {
+  background-color: rgba(169, 120, 75, 0.18) !important;
+}
+html.dark .bg-wood-light\/50,
+html.dark .bg-wood-light\/60,
+html.dark .bg-wood-light\/70,
+html.dark .hover\:bg-wood-light\/40:hover,
+html.dark .hover\:bg-wood-light\/50:hover {
+  background-color: rgba(185, 134, 86, 0.28) !important;
+}
+
+/* 4. Nút bấm chính & Khối điểm nhấn đậm (bg-wood-dark / bg-wood-medium) */
+html.dark .bg-wood-dark {
+  background-color: #8C5835 !important; /* Nâu Cognac ấm nổi bật trên nền nâu trầm */
+}
+html.dark .hover\:bg-wood-dark:hover {
+  background-color: #A66B43 !important;
+}
+html.dark .bg-wood-medium {
+  background-color: #A66B43 !important;
+}
+html.dark .hover\:bg-wood-medium:hover {
+  background-color: #BC7D52 !important;
+}
+html.dark .from-wood-dark {
+  --tw-gradient-from: #7D4E2E var(--tw-gradient-from-position) !important;
+}
+html.dark .to-wood-medium {
+  --tw-gradient-to: #B3764C var(--tw-gradient-to-position) !important;
+}
+
+/* Riêng khối Banner liên hệ lớn ở cuối trang chủ dùng gradient nâu gỗ sang trọng */
+html.dark section > div.bg-wood-dark.rounded-3xl {
+  background: linear-gradient(135deg, #2C1C13 0%, #3E281B 100%) !important;
+  border: 1px solid rgba(212, 155, 99, 0.35) !important;
+}
+
+/* 5. Màu chữ hài hòa, độ tương phản cao và ấm mắt trên nền nâu trầm */
+html.dark .text-wood-dark,
+html.dark .hover\:text-wood-dark:hover,
+html.dark .group:hover .group-hover\:text-wood-dark {
+  color: #F7E6D0 !important; /* Sắc kem vàng Champagne cho tiêu đề & giá */
+}
+
+html.dark .text-wood-charcoal {
+  color: #EDE0D1 !important; /* Chữ chính kem ngà dịu mắt */
+}
+html.dark .text-wood-charcoal\/90,
+html.dark .text-wood-charcoal\/85 {
+  color: rgba(237, 224, 209, 0.90) !important;
+}
+html.dark .text-wood-charcoal\/80,
+html.dark .text-wood-charcoal\/75 {
+  color: rgba(237, 224, 209, 0.80) !important;
+}
+html.dark .text-wood-charcoal\/70,
+html.dark .text-wood-charcoal\/65,
+html.dark .text-wood-charcoal\/60 {
+  color: rgba(237, 224, 209, 0.68) !important;
+}
+html.dark .text-wood-charcoal\/50,
+html.dark .placeholder\:text-wood-charcoal\/50::placeholder {
+  color: rgba(237, 224, 209, 0.48) !important;
+}
+
+html.dark .text-wood-medium,
+html.dark .hover\:text-wood-medium:hover,
+html.dark .group:hover .group-hover\:text-wood-medium {
+  color: #DF9E60 !important; /* Vàng đồng / Hổ phách ấm cho nhãn phụ & icon */
+}
+
+/* 6. Đường viền (Borders) nâu đồng tinh tế */
+html.dark .border-wood-light,
+html.dark .border-wood-light\/80,
+html.dark .border-wood-light\/70,
+html.dark .border-wood-light\/60,
+html.dark .border-wood-light\/50,
+html.dark .border-wood-light\/40,
+html.dark .border-wood-light\/30,
+html.dark .border-wood-light\/25 {
+  border-color: rgba(156, 110, 76, 0.38) !important;
+}
+
+html.dark .border-wood-medium,
+html.dark .border-wood-medium\/60,
+html.dark .border-wood-medium\/50,
+html.dark .hover\:border-wood-medium:hover,
+html.dark .hover\:border-wood-medium\/70:hover {
+  border-color: #C88A51 !important;
+}
+
+html.dark .border-wood-dark {
+  border-color: #F7E6D0 !important;
+}
+
+/* 7. Ô nhập liệu (Input, Textarea, Select) trong chế độ tối */
+html.dark input:not([type="checkbox"]):not([type="radio"]),
+html.dark textarea,
+html.dark select {
+  color: #F5EBE0;
 }
 
 /* Hiệu ứng xuất hiện nhẹ nhàng kiểu Apple (dưới 0.5 giây) */
@@ -44,6 +217,16 @@
 
 .animate-fade-up {
   animation: fadeSlideUp 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Ẩn con trỏ hệ thống trên máy tính (fine pointer) khi Custom Cursor Bắc Âu đang hoạt động */
+@media (hover: hover) and (pointer: fine) {
+  html.custom-cursor-active,
+  html.custom-cursor-active *,
+  html.custom-cursor-active *::before,
+  html.custom-cursor-active *::after {
+    cursor: none !important;
+  }
 }
 
 /* Mục 4 URD: Tự động tắt chuyển động khi thiết bị đặt chế độ giảm chuyển động */

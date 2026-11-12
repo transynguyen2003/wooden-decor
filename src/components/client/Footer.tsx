@@ -3,6 +3,7 @@ import Link from "next/link";
 import { MapPin, Clock, Phone, Mail } from "lucide-react";
 import { Locale } from "@/lib/i18n";
 import { SiteConfig } from "@/lib/settings";
+import { ZaloIcon, FacebookIcon, TikTokIcon } from "./SocialIcons";
 
 interface FooterProps {
   locale: Locale;
@@ -28,23 +29,18 @@ interface FooterProps {
 
 export default function Footer({ locale, siteConfig, dict }: FooterProps) {
   return (
-    <footer className="bg-wood-cream border-t border-wood-light/60 text-wood-charcoal mt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+    <footer className="bg-wood-cream border-t border-wood-light/60 text-wood-charcoal mt-16 sm:mt-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10">
           {/* Cột 1: Thương hiệu */}
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
+            <div className="space-y-2.5">
               <img
-                src={siteConfig.logoUrl || "/uploads/logo/logo.webp"}
+                src={siteConfig.logoUrl || "/uploads/logo/logo-thien-an.webp"}
                 alt={siteConfig.brandName}
-                className="h-12 w-12 rounded-full object-cover border border-wood-light"
+                className="h-14 sm:h-16 w-auto max-w-[250px] object-contain"
               />
-              <div>
-                <h3 className="font-serif text-xl font-bold text-wood-dark">
-                  {siteConfig.brandName}
-                </h3>
-                <p className="text-xs text-wood-medium">{siteConfig.slogan}</p>
-              </div>
+              <p className="text-xs font-medium text-wood-medium">{siteConfig.slogan}</p>
             </div>
             <p className="text-sm text-wood-charcoal/80 leading-relaxed">
               {locale === "en"
@@ -107,7 +103,7 @@ export default function Footer({ locale, siteConfig, dict }: FooterProps) {
             </ul>
           </div>
 
-          {/* Cột 3: Địa chỉ & Giờ mở cửa */}
+          {/* Cột 3: Địa chỉ Showroom */}
           <div className="space-y-4">
             <h4 className="font-serif text-base font-semibold text-wood-dark mb-4">
               {dict.footer.address}
@@ -115,13 +111,6 @@ export default function Footer({ locale, siteConfig, dict }: FooterProps) {
             <div className="flex items-start gap-3 text-sm text-wood-charcoal/85">
               <MapPin className="w-4 h-4 text-wood-medium shrink-0 mt-1" />
               <span>{siteConfig.address}</span>
-            </div>
-            <div className="flex items-start gap-3 text-sm text-wood-charcoal/85">
-              <Clock className="w-4 h-4 text-wood-medium shrink-0 mt-1" />
-              <div>
-                <p className="font-medium text-wood-dark">{dict.footer.openingHours}</p>
-                <p>{siteConfig.openingHours}</p>
-              </div>
             </div>
           </div>
 
@@ -143,28 +132,30 @@ export default function Footer({ locale, siteConfig, dict }: FooterProps) {
               <Mail className="w-4 h-4 text-wood-medium shrink-0" />
               <a
                 href={`mailto:${siteConfig.email}`}
-                className="hover:text-wood-medium transition-colors"
+                className="hover:text-wood-medium transition-colors break-all"
               >
                 {siteConfig.email}
               </a>
             </div>
-            <div className="pt-2 flex items-center gap-3">
+            <div className="pt-2 flex flex-wrap items-center gap-2.5 sm:gap-3">
               <a
                 href={`https://zalo.me/${siteConfig.zalo.replace(/\D/g, "")}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 rounded-full bg-wood-dark text-white text-xs font-medium hover:bg-wood-medium transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-wood-dark text-white text-xs font-medium hover:bg-wood-medium transition-colors"
               >
-                Zalo: {siteConfig.zalo}
+                <ZaloIcon className="w-4 h-4 shrink-0" />
+                <span>Zalo: {siteConfig.zalo}</span>
               </a>
               {siteConfig.facebookUrl && (
                 <a
                   href={siteConfig.facebookUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3.5 py-2 rounded-full border border-wood-light text-xs font-medium hover:bg-wood-white transition-colors"
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full border border-wood-light text-xs font-medium hover:bg-wood-white transition-colors"
                 >
-                  Facebook
+                  <FacebookIcon className="w-4 h-4 shrink-0" />
+                  <span>Facebook</span>
                 </a>
               )}
               {siteConfig.tiktokUrl && (
@@ -172,16 +163,17 @@ export default function Footer({ locale, siteConfig, dict }: FooterProps) {
                   href={siteConfig.tiktokUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3.5 py-2 rounded-full border border-wood-light text-xs font-medium hover:bg-wood-white transition-colors"
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full border border-wood-light text-xs font-medium hover:bg-wood-white transition-colors"
                 >
-                  TikTok
+                  <TikTokIcon className="w-4 h-4 shrink-0" />
+                  <span>TikTok</span>
                 </a>
               )}
             </div>
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-wood-light/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-wood-charcoal/70">
+        <div className="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-wood-light/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-wood-charcoal/70 text-center sm:text-left">
           <p>{dict.footer.copyright}</p>
           <Link
             href="/admin"

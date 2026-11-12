@@ -7,7 +7,7 @@ import { getDictionary, isValidLocale, Locale, tField } from "@/lib/i18n";
 import { getSiteConfig } from "@/lib/settings";
 import ProductCard from "@/components/client/ProductCard";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function InspirationDetailPage({
   params,
@@ -17,24 +17,26 @@ export default async function InspirationDetailPage({
   const { locale: rawLocale, slug } = await params;
   const locale: Locale = isValidLocale(rawLocale) ? rawLocale : "vi";
   const dict = getDictionary(locale);
-  const siteConfig = await getSiteConfig(locale);
 
-  const post = await prisma.post.findUnique({
-    where: { slug },
-    include: {
-      products: {
-        where: { product: { isVisible: true } },
-        include: {
-          product: {
-            include: {
-              category: true,
-              images: { orderBy: { sortOrder: "asc" } },
+  const [siteConfig, post] = await Promise.all([
+    getSiteConfig(locale),
+    prisma.post.findUnique({
+      where: { slug },
+      include: {
+        products: {
+          where: { product: { isVisible: true } },
+          include: {
+            product: {
+              include: {
+                category: true,
+                images: { orderBy: { sortOrder: "asc" } },
+              },
             },
           },
         },
       },
-    },
-  });
+    }),
+  ]);
 
   if (!post || !post.isPublished) {
     notFound();
@@ -46,7 +48,7 @@ export default async function InspirationDetailPage({
   const linkedProducts = post.products.map((pp) => pp.product);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-14">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10 sm:space-y-14">
       <Link
         href={`/${locale}/cam-hung`}
         className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-wood-medium hover:text-wood-dark"
@@ -68,7 +70,7 @@ export default async function InspirationDetailPage({
               )}
             </span>
           </div>
-          <h1 className="font-serif text-3xl sm:text-5xl font-bold text-wood-dark leading-tight">
+          <h1 className="font-serif text-[1.75rem] leading-tight sm:text-4xl lg:text-5xl font-bold text-wood-dark leading-tight">
             {title}
           </h1>
           {excerpt && (
@@ -88,7 +90,7 @@ export default async function InspirationDetailPage({
           </div>
         )}
 
-        <div className="bg-wood-cream/50 rounded-3xl p-6 sm:p-10 border border-wood-light/50 text-base sm:text-lg text-wood-charcoal/90 leading-relaxed whitespace-pre-line">
+        <div className="bg-wood-cream/50 rounded-3xl p-5 sm:p-10 border border-wood-light/50 text-base sm:text-lg text-wood-charcoal/90 leading-relaxed whitespace-pre-line">
           {content}
         </div>
       </article>
@@ -101,7 +103,7 @@ export default async function InspirationDetailPage({
               ? "Featured Pieces in This Story"
               : "Sản phẩm xuất hiện trong bài viết"}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
             {linkedProducts.map((product) => (
               <ProductCard
                 key={product.id}
