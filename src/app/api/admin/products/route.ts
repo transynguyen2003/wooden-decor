@@ -78,6 +78,7 @@ export async function POST(request: Request) {
       },
     });
 
+    revalidatePath("/", "layout");
     return NextResponse.json({ success: true, product: duplicated });
   }
 
@@ -113,6 +114,7 @@ export async function POST(request: Request) {
       }
     }
 
+    revalidatePath("/", "layout");
     return NextResponse.json({
       success: true,
       updatedCount: targets.length,
@@ -232,6 +234,7 @@ export async function PUT(request: Request) {
       data: dataToUpdate,
     });
 
+    revalidatePath("/", "layout");
     return NextResponse.json({ success: true, product: updated });
   }
 

@@ -8,6 +8,12 @@ import FloatingContact from "@/components/client/FloatingContact";
 import BackgroundMusic from "@/components/client/BackgroundMusic";
 import AIChatbot from "@/components/client/AIChatbot";
 
+export const revalidate = 60;
+
+export function generateStaticParams() {
+  return [{ locale: "vi" }, { locale: "en" }];
+}
+
 export default async function ClientLocaleLayout({
   children,
   params,

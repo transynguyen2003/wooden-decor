@@ -115,6 +115,13 @@ export default function Navbar({
     { href: `/${locale}/lien-he`, label: dict.contact },
   ];
 
+  // Nạp sẵn (Prefetch) toàn bộ 6 tab ngay khi vào trang để bấm chuyển tab tức thì (0ms)
+  useEffect(() => {
+    navLinks.forEach((item) => {
+      router.prefetch(item.href);
+    });
+  }, [locale, router]);
+
   const activePath = pendingHref || pathname;
 
   const isActive = (href: string, exact?: boolean) => {
@@ -310,6 +317,7 @@ export default function Navbar({
                 <Link
                   key={item.href}
                   href={item.href}
+                  prefetch={true}
                   onClick={() => {
                     setPendingHref(item.href);
                     setMobileMenuOpen(false);

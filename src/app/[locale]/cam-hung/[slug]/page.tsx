@@ -9,6 +9,21 @@ import ProductCard from "@/components/client/ProductCard";
 
 export const revalidate = 60;
 
+export async function generateStaticParams() {
+  try {
+    const posts = await prisma.post.findMany({
+      where: { isPublished: true },
+      select: { slug: true },
+    });
+    return posts.flatMap((p) => [
+      { locale: "vi", slug: p.slug },
+      { locale: "en", slug: p.slug },
+    ]);
+  } catch {
+    return [];
+  }
+}
+
 export default async function InspirationDetailPage({
   params,
 }: {
