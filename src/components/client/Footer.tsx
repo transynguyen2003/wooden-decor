@@ -15,6 +15,7 @@ interface FooterProps {
       collections: string;
       inspiration: string;
       about: string;
+      buyingGuide?: string;
       contact: string;
     };
     footer: {
@@ -97,6 +98,17 @@ export default function Footer({ locale, siteConfig, dict }: FooterProps) {
                   className="hover:text-wood-medium transition-colors"
                 >
                   {dict.nav.about}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={`/${locale}/huong-dan-mua-hang`}
+                  className="hover:text-wood-medium transition-colors font-medium text-wood-dark"
+                >
+                  {dict.nav.buyingGuide ||
+                    (locale === "en"
+                      ? "Buying Guide & How to Order"
+                      : "Hướng dẫn mua hàng & Sử dụng web")}
                 </Link>
               </li>
               <li>

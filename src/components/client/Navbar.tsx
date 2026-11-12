@@ -14,6 +14,7 @@ interface NavbarProps {
     collections: string;
     inspiration: string;
     about: string;
+    buyingGuide?: string;
     contact: string;
     searchPlaceholder: string;
     callNow: string;
@@ -112,6 +113,12 @@ export default function Navbar({
     { href: `/${locale}/bo-suu-tap`, label: dict.collections },
     { href: `/${locale}/cam-hung`, label: dict.inspiration },
     { href: `/${locale}/gioi-thieu`, label: dict.about },
+    {
+      href: `/${locale}/huong-dan-mua-hang`,
+      label:
+        dict.buyingGuide ||
+        (locale === "en" ? "Buying Guide" : "Hướng dẫn mua hàng"),
+    },
     { href: `/${locale}/lien-he`, label: dict.contact },
   ];
 
@@ -195,7 +202,7 @@ export default function Navbar({
           {/* Menu ngang chỉ hiện trên laptop (≥1024px), các tab không bao giờ xuống dòng */}
           <nav
             aria-label="Điều hướng chính"
-            className="hidden lg:flex items-center justify-center gap-4 xl:gap-7"
+            className="hidden lg:flex items-center justify-center gap-3 xl:gap-5"
           >
             {navLinks.map((item) => {
               const active = isActive(item.href, item.exact);
@@ -205,7 +212,7 @@ export default function Navbar({
                   href={item.href}
                   prefetch={true}
                   onClick={() => setPendingHref(item.href)}
-                  className={`whitespace-nowrap text-sm xl:text-[15px] font-medium transition-colors py-1.5 border-b-2 ${
+                  className={`whitespace-nowrap text-[13px] xl:text-sm font-medium transition-colors py-1.5 border-b-2 ${
                     active
                       ? "border-wood-dark text-wood-dark font-semibold"
                       : "border-transparent text-wood-charcoal/80 hover:text-wood-medium"

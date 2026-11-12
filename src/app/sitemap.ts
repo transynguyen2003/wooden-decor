@@ -33,6 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/bo-suu-tap",
     "/cam-hung",
     "/gioi-thieu",
+    "/huong-dan-mua-hang",
     "/lien-he",
   ];
 

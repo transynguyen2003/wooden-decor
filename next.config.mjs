@@ -21,6 +21,34 @@ const nextConfig = {
     // Tối ưu tốc độ biên dịch thư viện icon khi chuyển trang
     optimizePackageImports: ["lucide-react"],
   },
+  async rewrites() {
+    return [
+      {
+        source: "/huong-dan-mua-hang",
+        destination: "/vi/huong-dan-mua-hang",
+      },
+      {
+        source: "/san-pham",
+        destination: "/vi/san-pham",
+      },
+      {
+        source: "/bo-suu-tap",
+        destination: "/vi/bo-suu-tap",
+      },
+      {
+        source: "/cam-hung",
+        destination: "/vi/cam-hung",
+      },
+      {
+        source: "/gioi-thieu",
+        destination: "/vi/gioi-thieu",
+      },
+      {
+        source: "/lien-he",
+        destination: "/vi/lien-he",
+      },
+    ];
+  },
 };
 
 export default nextConfig;
