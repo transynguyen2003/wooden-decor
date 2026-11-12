@@ -1146,29 +1146,61 @@ Quy tắc quan trọng:
     },
   ];
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(
-    apiKey
-  )}`;
+  const candidateModels = [
+    "gemini-3.6-flash",
+    "gemini-3.8-flash",
+    "gemini-3.5-flash-lite",
+    "gemini-3.5-flash",
+  ];
 
-  const res = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      systemInstruction: {
-        parts: [{ text: systemInstruction }],
-      },
-      contents,
-      generationConfig: {
-        temperature: 0.3,
-        maxOutputTokens: 500,
-      },
-    }),
-  });
+  let rawReply: string | undefined;
 
-  if (!res.ok) return null;
-  const data = await res.json();
-  const rawReply: string | undefined =
-    data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  for (const modelName of candidateModels) {
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(
+      apiKey
+    )}`;
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 9500);
+
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: systemInstruction }],
+          },
+          contents,
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 500,
+            thinkingConfig: {
+              thinkingLevel: "MINIMAL",
+            },
+          },
+        }),
+      });
+      clearTimeout(timer);
+
+      if (!res.ok) continue;
+      const data = await res.json();
+      const parts: Array<{ text?: string; thought?: boolean }> =
+        data?.candidates?.[0]?.content?.parts || [];
+      const answerPart =
+        parts.find((p) => !p.thought && typeof p.text === "string" && p.text.trim()) ||
+        parts[parts.length - 1];
+      if (answerPart?.text) {
+        rawReply = answerPart.text;
+        break;
+      }
+    } catch {
+      clearTimeout(timer);
+      continue;
+    }
+  }
+
   if (!rawReply) return null;
 
   const slugMatches = Array.from(rawReply.matchAll(/\[SLUG:([a-z0-9-]+)\]/gi));
