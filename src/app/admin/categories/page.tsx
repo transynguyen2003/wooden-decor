@@ -35,10 +35,15 @@ export default function AdminCategoriesPage() {
 
   const fetchCategories = async () => {
     setLoading(true);
-    const res = await fetch("/api/admin/categories");
-    const data = await res.json();
-    setCategories(data.categories || []);
-    setLoading(false);
+    try {
+      const res = await fetch("/api/admin/categories", { cache: "no-store" });
+      const data = await res.json().catch(() => ({}));
+      setCategories(data.categories || []);
+    } catch (err) {
+      console.error("Failed to fetch categories:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {

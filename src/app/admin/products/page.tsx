@@ -111,32 +111,37 @@ export default function AdminProductsPage() {
 
   const fetchAll = async () => {
     setLoading(true);
-    const [prodRes, catRes, colRes] = await Promise.all([
-      fetch("/api/admin/products"),
-      fetch("/api/admin/categories"),
-      fetch("/api/admin/collections"),
-    ]);
-    const [prodData, catData, colData] = await Promise.all([
-      prodRes.json(),
-      catRes.json(),
-      colRes.json(),
-    ]);
+    try {
+      const [prodRes, catRes, colRes] = await Promise.all([
+        fetch("/api/admin/products", { cache: "no-store" }),
+        fetch("/api/admin/categories", { cache: "no-store" }),
+        fetch("/api/admin/collections", { cache: "no-store" }),
+      ]);
+      const [prodData, catData, colData] = await Promise.all([
+        prodRes.json().catch(() => ({})),
+        catRes.json().catch(() => ({})),
+        colRes.json().catch(() => ({})),
+      ]);
 
-    const prods: AdminProductItem[] = prodData.products || [];
-    setProducts(prods);
-    setCategories(catData.categories || []);
-    setCollections(colData.collections || []);
+      const prods: AdminProductItem[] = prodData.products || [];
+      setProducts(prods);
+      setCategories(catData.categories || []);
+      setCollections(colData.collections || []);
 
-    const priceMap: Record<string, string> = {};
-    for (const p of prods) {
-      priceMap[p.id] = p.isContactPrice || !p.price ? "" : String(p.price);
+      const priceMap: Record<string, string> = {};
+      for (const p of prods) {
+        priceMap[p.id] = p.isContactPrice || !p.price ? "" : String(p.price);
+      }
+      setQuickPrices(priceMap);
+
+      if (!categoryId && catData.categories?.[0]?.id) {
+        setCategoryId(catData.categories[0].id);
+      }
+    } catch (err) {
+      console.error("Failed to fetch admin products data:", err);
+    } finally {
+      setLoading(false);
     }
-    setQuickPrices(priceMap);
-
-    if (!categoryId && catData.categories?.[0]?.id) {
-      setCategoryId(catData.categories[0].id);
-    }
-    setLoading(false);
   };
 
   useEffect(() => {

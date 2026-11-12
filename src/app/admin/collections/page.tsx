@@ -33,10 +33,15 @@ export default function AdminCollectionsPage() {
 
   const fetchCollections = async () => {
     setLoading(true);
-    const res = await fetch("/api/admin/collections");
-    const data = await res.json();
-    setCollections(data.collections || []);
-    setLoading(false);
+    try {
+      const res = await fetch("/api/admin/collections", { cache: "no-store" });
+      const data = await res.json().catch(() => ({}));
+      setCollections(data.collections || []);
+    } catch (err) {
+      console.error("Failed to fetch collections:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
