@@ -13,6 +13,7 @@ import {
   formatProductPrice,
 } from "@/lib/i18n";
 import { getSiteConfig } from "@/lib/settings";
+import { buildPageMetadata, SITE_URL, toAbsoluteUrl } from "@/lib/seo";
 import ProductImageGallery from "@/components/client/ProductImageGallery";
 import InquiryForm from "@/components/client/InquiryForm";
 import ProductCard from "@/components/client/ProductCard";
@@ -24,7 +25,7 @@ export async function generateStaticParams() {
   return [];
 }
 
-// Mục 5.4 & 9 URD: Tạo thông tin chia sẻ Zalo, Facebook (OpenGraph) và SEO cho từng sản phẩm
+// Mục 5.4 & 9 URD: Tạo thông tin chia sẻ Zalo, Facebook (OpenGraph), Twitter Card và Canonical cho từng sản phẩm
 export async function generateMetadata({
   params,
 }: {
@@ -39,25 +40,32 @@ export async function generateMetadata({
   });
 
   if (!product || !product.isVisible) {
-    return { title: "Sản phẩm không tồn tại" };
+    return { title: "Sản phẩm không tồn tại | Wooden Decor" };
   }
 
-  const title = tField(product.nameVi, product.nameEn, locale);
-  const description = tField(product.descriptionVi, product.descriptionEn, locale);
+  const rawTitle = tField(product.nameVi, product.nameEn, locale);
+  const titleWithBrand =
+    rawTitle.length <= 42
+      ? `${rawTitle} | Wooden Decor`
+      : rawTitle;
+  const description = tField(
+    product.descriptionVi,
+    product.descriptionEn,
+    locale
+  );
   const coverImage =
     product.images.find((i) => i.isCover)?.url ||
     product.images[0]?.url ||
-    "/uploads/logo/logo.png";
+    "/uploads/banners/hero-phong-khach-dang-song.webp";
 
-  return {
-    title,
+  return buildPageMetadata({
+    locale,
+    path: `/san-pham/${slug}`,
+    title: titleWithBrand,
     description,
-    openGraph: {
-      title: `${title} | Wooden Decor`,
-      description,
-      images: [coverImage],
-    },
-  };
+    image: coverImage,
+    type: "website",
+  });
 }
 
 export default async function ProductDetailPage({
@@ -123,46 +131,94 @@ export default async function ProductDetailPage({
     return a.sortOrder - b.sortOrder;
   });
 
-  const galleryImages = sortedImages.map((img) => ({
+  const galleryImages = sortedImages.map((img, idx) => ({
     id: img.id,
     url: img.url,
-    alt: tField(img.altVi, img.altEn, locale) || name,
+    alt:
+      tField(img.altVi, img.altEn, locale) ||
+      `${name} - Góc chụp ${idx + 1} đồ decor gỗ thủ công Wooden Decor`,
   }));
 
   const cleanPhone = siteConfig.phone.replace(/\s+/g, "");
-  const cleanZalo = siteConfig.zalo.replace(/\D/g, "") || cleanPhone.replace(/\D/g, "");
+  const cleanZalo =
+    siteConfig.zalo.replace(/\D/g, "") || cleanPhone.replace(/\D/g, "");
+  const productUrl = `${SITE_URL}/${locale}/san-pham/${product.slug}`;
 
-  // Dữ liệu có cấu trúc JSON-LD cho Google hiểu sản phẩm (Mục 9 SEO URD)
-  const jsonLd = {
+  // 1. Dữ liệu cấu trúc JSON-LD Schema "Product" đầy đủ (name, image, description, material, offers)
+  const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name,
     description,
-    image: galleryImages.map((i) => i.url),
+    sku: product.slug,
+    material: material || "Gỗ tự nhiên nguyên khối chế tác thủ công",
+    category: categoryName,
+    image: galleryImages.map((i) => toAbsoluteUrl(i.url)),
     brand: {
       "@type": "Brand",
-      name: siteConfig.brandName,
+      name: "Wooden Decor",
     },
     offers: {
       "@type": "Offer",
+      url: productUrl,
       priceCurrency: "VND",
       price: product.price || 0,
       availability:
         product.stockStatus === "IN_STOCK"
           ? "https://schema.org/InStock"
           : "https://schema.org/OutOfStock",
+      itemCondition: "https://schema.org/NewCondition",
     },
   };
 
+  // 2. Dữ liệu cấu trúc JSON-LD Schema "BreadcrumbList" cho trang chi tiết sản phẩm
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: dict.nav.home,
+        item: `${SITE_URL}/${locale}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: dict.nav.products,
+        item: `${SITE_URL}/${locale}/san-pham`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: categoryName,
+        item: `${SITE_URL}/${locale}/san-pham?category=${product.category.slug}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 4,
+        name,
+        item: productUrl,
+      },
+    ],
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-12 sm:space-y-20">
+    <article className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-12 sm:space-y-20">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
-      {/* Đường dẫn Breadcrumb */}
-      <nav className="text-xs text-wood-charcoal/70 flex flex-wrap items-center gap-2">
+      {/* Đường dẫn Breadcrumb ngữ nghĩa */}
+      <nav
+        aria-label="Breadcrumb"
+        className="text-xs text-wood-charcoal/70 flex flex-wrap items-center gap-2"
+      >
         <Link href={`/${locale}`} className="hover:text-wood-dark">
           {dict.nav.home}
         </Link>
@@ -178,29 +234,36 @@ export default async function ProductDetailPage({
           {categoryName}
         </Link>
         <span>/</span>
-        <span className="text-wood-dark font-medium">{name}</span>
+        <span aria-current="page" className="text-wood-dark font-medium">
+          {name}
+        </span>
       </nav>
 
-      {/* Bố cục 2 cột: Bộ ảnh bên trái + Thông tin cố định bên phải khi cuộn (Mục 3 & 5.4 URD) */}
+      {/* Bố cục 2 cột: Bộ ảnh bên trái + Thông tin cố định bên phải khi cuộn */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-        {/* Cột trái: Bộ ảnh sản phẩm */}
+        {/* Cột trái: Bộ ảnh sản phẩm & Câu chuyện chế tác */}
         <div className="lg:col-span-7 space-y-6 sm:space-y-10 min-w-0">
           <ProductImageGallery images={galleryImages} productName={name} />
 
-          {/* Câu chuyện & Mô tả chi tiết kiểu cuộn dọc Apple */}
-          <div className="bg-wood-cream/60 rounded-2xl p-5 sm:p-8 border border-wood-light/50 space-y-4">
-            <h2 className="font-serif text-2xl font-bold text-wood-dark">
+          <section
+            aria-labelledby="product-story-heading"
+            className="bg-wood-cream/60 rounded-2xl p-5 sm:p-8 border border-wood-light/50 space-y-4"
+          >
+            <h2
+              id="product-story-heading"
+              className="font-serif text-2xl font-bold text-wood-dark"
+            >
               {locale === "en" ? "Craftsmanship & Story" : "Chi tiết chế tác & Mô tả"}
             </h2>
             <div className="text-sm sm:text-base text-wood-charcoal/85 leading-relaxed whitespace-pre-line">
               {description}
             </div>
-          </div>
+          </section>
         </div>
 
         {/* Cột phải: Thông tin & Nút liên hệ giữ cố định khi cuộn (Sticky) */}
-        <div className="lg:col-span-5 lg:sticky lg:top-28 space-y-6 min-w-0">
-          <div className="bg-wood-white rounded-3xl p-5 sm:p-8 border border-wood-light/60 shadow-sm space-y-6">
+        <aside className="lg:col-span-5 lg:sticky lg:top-28 space-y-6 min-w-0">
+          <header className="bg-wood-white rounded-3xl p-5 sm:p-8 border border-wood-light/60 shadow-sm space-y-6">
             <div className="flex flex-wrap items-center gap-2">
               <Link
                 href={`/${locale}/san-pham?category=${product.category.slug}`}
@@ -287,7 +350,7 @@ export default async function ProductDetailPage({
               )}
             </div>
 
-            {/* 3 nút hành động chính: Gọi ngay, Chat Zalo, Gửi yêu cầu tư vấn (Mục 5.4 URD) */}
+            {/* 3 nút hành động chính: Gọi ngay, Chat Zalo, Gửi yêu cầu tư vấn */}
             <div className="space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <a
@@ -315,23 +378,33 @@ export default async function ProductDetailPage({
                 ↓ {dict.products.sendInquiry}
               </a>
             </div>
-          </div>
-        </div>
+          </header>
+        </aside>
       </div>
 
-      {/* Form gửi yêu cầu tư vấn điền sẵn tên sản phẩm (Mục 5.4 & 5.5 URD) */}
-      <div id="form-tu-van" className="scroll-mt-28 max-w-3xl mx-auto">
+      {/* Form gửi yêu cầu tư vấn điền sẵn tên sản phẩm */}
+      <section
+        id="form-tu-van"
+        aria-label="Form gửi yêu cầu tư vấn sản phẩm"
+        className="scroll-mt-28 max-w-3xl mx-auto"
+      >
         <InquiryForm
           productId={product.id}
           productName={name}
           dict={dict.inquiry}
         />
-      </div>
+      </section>
 
-      {/* Khối Sản phẩm liên quan cùng danh mục (Mục 5.4 URD) */}
+      {/* Khối Sản phẩm liên quan cùng danh mục */}
       {relatedProducts.length > 0 && (
-        <section className="space-y-8 pt-8 border-t border-wood-light/50">
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-wood-dark">
+        <section
+          aria-labelledby="related-products-heading"
+          className="space-y-8 pt-8 border-t border-wood-light/50"
+        >
+          <h2
+            id="related-products-heading"
+            className="font-serif text-2xl sm:text-3xl font-bold text-wood-dark"
+          >
             {dict.products.relatedProducts}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-8">
@@ -347,6 +420,6 @@ export default async function ProductDetailPage({
           </div>
         </section>
       )}
-    </div>
+    </article>
   );
 }

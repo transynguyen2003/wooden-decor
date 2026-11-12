@@ -69,73 +69,85 @@ export default function ProductCard({
   });
 
   const isOutOfStock = product.stockStatus === "OUT_OF_STOCK";
+  const primaryAlt =
+    (sortedImages[0] &&
+      tField(sortedImages[0].altVi, sortedImages[0].altEn, locale)) ||
+    `${title}${categoryName ? ` - ${categoryName}` : ""} | Đồ decor gỗ thủ công Wooden Decor`;
+  const secondaryAlt =
+    (sortedImages[1] &&
+      tField(sortedImages[1].altVi, sortedImages[1].altEn, locale)) ||
+    `${title} - Góc chụp chi tiết 2 đồ decor gỗ thủ công Wooden Decor`;
 
   return (
-    <Link
-      href={`/${locale}/san-pham/${product.slug}`}
-      prefetch={true}
-      className="group flex flex-col bg-wood-white rounded-2xl overflow-hidden border border-wood-light/40 hover:border-wood-medium/70 transition-all duration-300 hover:shadow-md"
-    >
-      {/* Khung ảnh tỷ lệ 4:3 lớn, hỗ trợ đổi sang ảnh thứ 2 khi rê chuột */}
-      <div className="relative aspect-[4/3] w-full bg-wood-cream overflow-hidden">
-        <img
-          src={primaryImage}
-          alt={title}
-          loading="lazy"
-          className={`w-full h-full object-cover transition-all duration-500 ${
-            secondaryImage ? "group-hover:opacity-0" : "group-hover:scale-105"
-          }`}
-        />
-        {secondaryImage && (
+    <article className="flex flex-col bg-wood-white rounded-2xl overflow-hidden border border-wood-light/40 hover:border-wood-medium/70 transition-all duration-300 hover:shadow-md">
+      <Link
+        href={`/${locale}/san-pham/${product.slug}`}
+        prefetch={true}
+        className="group flex flex-col flex-1"
+      >
+        {/* Khung ảnh tỷ lệ 4:3 lớn, hỗ trợ đổi sang ảnh thứ 2 khi rê chuột */}
+        <div className="relative aspect-[4/3] w-full bg-wood-cream overflow-hidden">
           <img
-            src={secondaryImage}
-            alt={`${title} - 2`}
+            src={primaryImage}
+            alt={primaryAlt}
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
-          />
-        )}
-
-        {/* Nhãn Hết hàng (nếu có) */}
-        {isOutOfStock && (
-          <span className="absolute top-3 left-3 bg-wood-charcoal/90 text-white text-[11px] font-semibold uppercase tracking-wider px-3 py-1 rounded-full">
-            {outOfStockLabel}
-          </span>
-        )}
-
-        {/* Chỉ báo có nhiều góc ảnh */}
-        {sortedImages.length > 1 && (
-          <span className="absolute bottom-3 right-3 bg-wood-white/85 backdrop-blur-sm text-wood-charcoal text-[11px] font-medium px-2.5 py-0.5 rounded-full border border-wood-light/50">
-            {sortedImages.length} {locale === "en" ? "photos" : "ảnh"}
-          </span>
-        )}
-      </div>
-
-      {/* Thông tin sản phẩm gọn gàng, sang trọng */}
-      <div className="p-4 sm:p-5 flex flex-col flex-1 justify-between gap-3">
-        <div>
-          {categoryName && (
-            <p className="text-xs uppercase tracking-widest text-wood-medium font-medium mb-1">
-              {categoryName}
-            </p>
-          )}
-          <h3 className="font-serif text-lg font-semibold text-wood-charcoal group-hover:text-wood-dark transition-colors line-clamp-2">
-            {title}
-          </h3>
-        </div>
-
-        <div className="pt-2 border-t border-wood-light/30 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1">
-          <span
-            className={`text-base font-semibold ${
-              priceDisplay.isContact ? "text-wood-medium" : "text-wood-dark"
+            decoding="async"
+            className={`w-full h-full object-cover transition-all duration-500 ${
+              secondaryImage ? "group-hover:opacity-0" : "group-hover:scale-105"
             }`}
-          >
-            {priceDisplay.primary}
-          </span>
-          <span className="text-xs font-medium text-wood-medium group-hover:translate-x-1 transition-transform">
-            {locale === "en" ? "View details →" : "Xem chi tiết →"}
-          </span>
+          />
+          {secondaryImage && (
+            <img
+              src={secondaryImage}
+              alt={secondaryAlt}
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
+            />
+          )}
+
+          {/* Nhãn Hết hàng (nếu có) */}
+          {isOutOfStock && (
+            <span className="absolute top-3 left-3 bg-wood-charcoal/90 text-white text-[11px] font-semibold uppercase tracking-wider px-3 py-1 rounded-full">
+              {outOfStockLabel}
+            </span>
+          )}
+
+          {/* Chỉ báo có nhiều góc ảnh */}
+          {sortedImages.length > 1 && (
+            <span className="absolute bottom-3 right-3 bg-wood-white/85 backdrop-blur-sm text-wood-charcoal text-[11px] font-medium px-2.5 py-0.5 rounded-full border border-wood-light/50">
+              {sortedImages.length} {locale === "en" ? "photos" : "ảnh"}
+            </span>
+          )}
         </div>
-      </div>
-    </Link>
+
+        {/* Thông tin sản phẩm gọn gàng, sang trọng */}
+        <div className="p-4 sm:p-5 flex flex-col flex-1 justify-between gap-3">
+          <div>
+            {categoryName && (
+              <p className="text-xs uppercase tracking-widest text-wood-medium font-medium mb-1">
+                {categoryName}
+              </p>
+            )}
+            <h3 className="font-serif text-lg font-semibold text-wood-charcoal group-hover:text-wood-dark transition-colors line-clamp-2">
+              {title}
+            </h3>
+          </div>
+
+          <div className="pt-2 border-t border-wood-light/30 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1">
+            <span
+              className={`text-base font-semibold ${
+                priceDisplay.isContact ? "text-wood-medium" : "text-wood-dark"
+              }`}
+            >
+              {priceDisplay.primary}
+            </span>
+            <span className="text-xs font-medium text-wood-medium group-hover:translate-x-1 transition-transform">
+              {locale === "en" ? "View details →" : "Xem chi tiết →"}
+            </span>
+          </div>
+        </div>
+      </Link>
+    </article>
   );
 }

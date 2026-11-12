@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 import CustomCursor from "@/components/client/CustomCursor";
+import { SITE_URL } from "@/lib/seo";
 
 const playfair = Playfair_Display({
   subsets: ["latin", "vietnamese"],
@@ -17,13 +18,65 @@ const beVietnam = Be_Vietnam_Pro({
   display: "swap",
 });
 
+const DEFAULT_TITLE = "Wooden Decor | Đồ Decor Gỗ Thủ Công & Nội Thất Tự Nhiên";
+const DEFAULT_DESCRIPTION =
+  "Xưởng chế tác đồ decor gỗ thủ công & nội thất gỗ tự nhiên nguyên khối cao cấp: sofa gỗ óc chó, bàn trà điêu khắc, giường ngủ và kệ gỗ nghệ thuật.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "Wooden Decor | Nội Thất Gỗ Tự Nhiên Điêu Khắc Thủ Công",
+    default: DEFAULT_TITLE,
     template: "%s | Wooden Decor",
   },
-  description:
-    "Showroom & Xưởng chế tác nội thất gỗ tự nhiên cao cấp: Sofa gỗ óc chó, bàn trà điêu khắc, giường gỗ nguyên khối, kệ trang trí nghệ thuật.",
+  description: DEFAULT_DESCRIPTION,
+  keywords: [
+    "đồ decor gỗ thủ công",
+    "nội thất gỗ tự nhiên",
+    "Wooden Decor",
+    "sofa gỗ óc chó",
+    "bàn trà gỗ nguyên khối",
+    "điêu khắc gỗ thủ công",
+    "nội thất gỗ Thiên An",
+  ],
+  alternates: {
+    canonical: `${SITE_URL}/vi`,
+    languages: {
+      "vi-VN": `${SITE_URL}/vi`,
+      "en-US": `${SITE_URL}/en`,
+    },
+  },
+  openGraph: {
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+    url: `${SITE_URL}/vi`,
+    siteName: "Wooden Decor",
+    locale: "vi_VN",
+    type: "website",
+    images: [
+      {
+        url: `${SITE_URL}/uploads/banners/hero-phong-khach-dang-song.webp`,
+        width: 1200,
+        height: 630,
+        alt: "Wooden Decor - Đồ Decor Gỗ Thủ Công & Nội Thất Gỗ Tự Nhiên",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+    images: [`${SITE_URL}/uploads/banners/hero-phong-khach-dang-song.webp`],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   icons: {
     icon: "/uploads/logo/logo.png",
   },

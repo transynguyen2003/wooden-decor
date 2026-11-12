@@ -1,15 +1,45 @@
 import React from "react";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArrowRight, ShieldCheck, Sparkles, Ruler, Phone, MapPin } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getDictionary, isValidLocale, Locale, tField } from "@/lib/i18n";
 import { getSiteConfig } from "@/lib/settings";
+import { buildPageMetadata, SITE_URL, toAbsoluteUrl } from "@/lib/seo";
 import ProductCard from "@/components/client/ProductCard";
 import LazyMap from "@/components/client/LazyMap";
 import VideoShowcaseSection from "@/components/client/VideoShowcaseSection";
 import { ZaloIcon } from "@/components/client/SocialIcons";
 
 export const revalidate = 60;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale: rawLocale } = await params;
+  const locale: Locale = isValidLocale(rawLocale) ? rawLocale : "vi";
+  const siteConfig = await getSiteConfig(locale);
+
+  const title =
+    locale === "en"
+      ? "Wooden Decor | Handcrafted Wood Decor & Solid Furniture"
+      : "Wooden Decor | Đồ Decor Gỗ Thủ Công & Nội Thất Tự Nhiên";
+
+  const description =
+    locale === "en"
+      ? "Handcrafted solid wood decor & bespoke natural timber furniture studio in Vietnam: sculpted walnut sofas, coffee tables, beds, and artful shelves."
+      : "Xưởng chế tác đồ decor gỗ thủ công & nội thất gỗ tự nhiên nguyên khối cao cấp: sofa gỗ óc chó, bàn trà điêu khắc, giường ngủ và kệ gỗ nghệ thuật.";
+
+  return buildPageMetadata({
+    locale,
+    path: "",
+    title,
+    description,
+    image: siteConfig.heroBannerImage || "/uploads/banners/hero-phong-khach-dang-song.webp",
+  });
+}
 
 export default async function HomePage({
   params,
@@ -49,19 +79,57 @@ export default async function HomePage({
       }),
     ]);
 
+  // Schema "Organization" chuẩn JSON-LD cho thương hiệu Wooden Decor ở trang chủ
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Wooden Decor",
+    alternateName: siteConfig.brandName || "TA THIÊN AN - Nội Thất Gỗ Tự Nhiên",
+    url: `${SITE_URL}/${locale}`,
+    logo: toAbsoluteUrl(siteConfig.logoUrl || "/uploads/logo/logo-thien-an.webp"),
+    image: toAbsoluteUrl(
+      siteConfig.heroBannerImage || "/uploads/banners/hero-phong-khach-dang-song.webp"
+    ),
+    description:
+      "Xưởng chế tác đồ decor gỗ thủ công & nội thất gỗ tự nhiên nguyên khối cao cấp: sofa gỗ óc chó, bàn trà điêu khắc, giường ngủ và kệ trang trí nghệ thuật.",
+    telephone: siteConfig.phone,
+    email: siteConfig.email,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: siteConfig.address,
+      addressLocality: "Bắc Ninh",
+      addressCountry: "VN",
+    },
+    sameAs: [siteConfig.facebookUrl, siteConfig.tiktokUrl].filter(Boolean),
+  };
+
   return (
-    <div className="space-y-16 sm:space-y-24 pb-12">
-      {/* 1. HERO BANNER CỠ LỚN (Phong cách Nike.com & Apple.com - Mục 3 & 5.2 URD) */}
-      <section className="relative min-h-[78vh] sm:min-h-[82vh] flex items-center overflow-hidden bg-wood-charcoal">
+    <article className="space-y-16 sm:space-y-24 pb-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
+
+      {/* 1. HERO BANNER CỠ LỚN (LCP tối ưu với loading="eager" & fetchPriority="high") */}
+      <section
+        aria-label="Banner giới thiệu đồ decor gỗ thủ công Wooden Decor"
+        className="relative min-h-[78vh] sm:min-h-[82vh] flex items-center overflow-hidden bg-wood-charcoal"
+      >
         <img
-          src={siteConfig.heroBannerImage || "/uploads/banners/hero-phong-khach-dang-song.webp"}
-          alt={siteConfig.heroTitle}
+          src={
+            siteConfig.heroBannerImage ||
+            "/uploads/banners/hero-phong-khach-dang-song.webp"
+          }
+          alt={`${siteConfig.heroTitle} - Đồ decor gỗ thủ công và nội thất gỗ tự nhiên Wooden Decor`}
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover opacity-70"
         />
         <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-wood-charcoal/90 via-wood-charcoal/55 to-wood-charcoal/20 sm:to-transparent" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 w-full">
-          <div className="max-w-2xl space-y-5 sm:space-y-6 animate-fade-up">
+          <header className="max-w-2xl space-y-5 sm:space-y-6 animate-fade-up">
             <span className="inline-block uppercase tracking-[0.14em] sm:tracking-[0.25em] text-[10px] sm:text-xs font-semibold text-wood-light bg-wood-white/10 backdrop-blur-sm px-3 sm:px-4 py-1.5 rounded-full border border-wood-light/30 max-w-full">
               {siteConfig.slogan}
             </span>
@@ -84,22 +152,30 @@ export default async function HomePage({
                 className="inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-md text-white border border-white/30 font-medium px-7 py-3.5 sm:py-4 rounded-full transition-all text-sm sm:text-base"
               >
                 <span>
-                  {locale === "en" ? "Book Showroom Visit" : "Đặt lịch xem mẫu tại xưởng"}
+                  {locale === "en"
+                    ? "Book Showroom Visit"
+                    : "Đặt lịch xem mẫu tại xưởng"}
                 </span>
               </Link>
             </div>
-          </div>
+          </header>
         </div>
       </section>
 
-      {/* 2. KHỐI DANH MỤC SẢN PHẨM (Mục 5.2 URD) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4 mb-8 sm:mb-12">
+      {/* 2. KHỐI DANH MỤC SẢN PHẨM */}
+      <section
+        aria-labelledby="home-categories-heading"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4 mb-8 sm:mb-12">
           <div className="space-y-2 max-w-2xl">
             <p className="text-xs uppercase tracking-[0.2em] text-wood-medium font-semibold">
               {locale === "en" ? "By Category" : "Phân loại công năng"}
             </p>
-            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-wood-dark">
+            <h2
+              id="home-categories-heading"
+              className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-wood-dark"
+            >
               {dict.home.categoriesTitle}
             </h2>
             <p className="text-wood-charcoal/75 text-sm sm:text-base">
@@ -113,7 +189,7 @@ export default async function HomePage({
             <span>{dict.home.viewAll}</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
-        </div>
+        </header>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {categories.map((cat) => {
@@ -127,8 +203,9 @@ export default async function HomePage({
               >
                 <img
                   src={cat.imageUrl || "/uploads/logo/logo.webp"}
-                  alt={catName}
+                  alt={`Danh mục ${catName} - Đồ decor gỗ thủ công và nội thất gỗ tự nhiên Wooden Decor`}
                   loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-wood-charcoal/85 via-wood-charcoal/25 to-transparent" />
@@ -139,7 +216,9 @@ export default async function HomePage({
                   <h3 className="font-serif text-sm sm:text-xl font-bold mt-1 leading-snug group-hover:text-wood-light transition-colors">
                     {catName}
                   </h3>
-                  <p className="hidden sm:block text-xs text-white/80 mt-1.5 line-clamp-2">{catDesc}</p>
+                  <p className="hidden sm:block text-xs text-white/80 mt-1.5 line-clamp-2">
+                    {catDesc}
+                  </p>
                 </div>
               </Link>
             );
@@ -147,15 +226,21 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* 3. KHỐI SẢN PHẨM NỔI BẬT (Mục 5.2 URD) */}
-      <section className="bg-wood-cream/65 py-14 sm:py-20 border-y border-wood-light/40">
+      {/* 3. KHỐI SẢN PHẨM NỔI BẬT */}
+      <section
+        aria-labelledby="home-featured-heading"
+        className="bg-wood-cream/65 py-14 sm:py-20 border-y border-wood-light/40"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4 mb-8 sm:mb-12">
+          <header className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4 mb-8 sm:mb-12">
             <div className="space-y-2 max-w-2xl">
               <p className="text-xs uppercase tracking-[0.2em] text-wood-medium font-semibold">
                 {locale === "en" ? "Curated Selection" : "Chủ xưởng tuyển chọn"}
               </p>
-              <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-wood-dark">
+              <h2
+                id="home-featured-heading"
+                className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-wood-dark"
+              >
                 {dict.home.featuredTitle}
               </h2>
               <p className="text-wood-charcoal/75 text-sm sm:text-base">
@@ -169,7 +254,7 @@ export default async function HomePage({
               <span>{dict.home.viewAll}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
-          </div>
+          </header>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
             {featuredProducts.map((product) => (
@@ -188,14 +273,20 @@ export default async function HomePage({
       {/* 3.5. KHỐI VIDEO THỰC TẾ TẠI XƯỞNG & SHOWROOM */}
       <VideoShowcaseSection videos={siteConfig.showcaseVideos} locale={locale} />
 
-      {/* 4. KHỐI BỘ SƯU TẬP NỔI BẬT (Mục 15.2 & 15.6 URD) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4 mb-8 sm:mb-12">
+      {/* 4. KHỐI BỘ SƯU TẬP NỔI BẬT */}
+      <section
+        aria-labelledby="home-collections-heading"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4 mb-8 sm:mb-12">
           <div className="space-y-2 max-w-2xl">
             <p className="text-xs uppercase tracking-[0.2em] text-wood-medium font-semibold">
               {locale === "en" ? "Collections" : "Bộ sưu tập theo phong cách"}
             </p>
-            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-wood-dark">
+            <h2
+              id="home-collections-heading"
+              className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-wood-dark"
+            >
               {dict.home.collectionsTitle}
             </h2>
             <p className="text-wood-charcoal/75 text-sm sm:text-base">
@@ -209,7 +300,7 @@ export default async function HomePage({
             <span>{dict.home.viewAll}</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
-        </div>
+        </header>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
           {collections.map((col) => {
@@ -224,8 +315,9 @@ export default async function HomePage({
                 <div className="aspect-[16/10] overflow-hidden bg-wood-light/20">
                   <img
                     src={col.imageUrl || "/uploads/logo/logo.webp"}
-                    alt={colName}
+                    alt={`Bộ sưu tập ${colName} - Đồ decor gỗ thủ công và nội thất gỗ tự nhiên Wooden Decor`}
                     loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 </div>
@@ -248,14 +340,22 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* 5. CÂU CHUYỆN CHẾ TÁC THỦ CÔNG TẠI XƯỞNG (Phong cách Apple.com - Mục 3 & 5.2 URD) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* 5. CÂU CHUYỆN CHẾ TÁC THỦ CÔNG TẠI XƯỞNG */}
+      <section
+        aria-labelledby="home-craft-heading"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
         <div className="rounded-3xl bg-wood-cream border border-wood-light/60 p-5 sm:p-10 lg:p-16 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-6 space-y-6">
             <span className="inline-block text-xs uppercase tracking-[0.2em] text-wood-medium font-semibold">
-              {locale === "en" ? "Direct from Our Workshop" : "Trực tiếp từ xưởng mộc Wooden Decor"}
+              {locale === "en"
+                ? "Direct from Our Workshop"
+                : "Trực tiếp từ xưởng mộc Wooden Decor"}
             </span>
-            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-wood-dark leading-tight">
+            <h2
+              id="home-craft-heading"
+              className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-wood-dark leading-tight"
+            >
               {dict.home.craftTitle}
             </h2>
             <p className="text-wood-charcoal/80 leading-relaxed text-sm sm:text-base">
@@ -268,7 +368,9 @@ export default async function HomePage({
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-wood-dark">{dict.home.craftPoint1Title}</h4>
+                  <h3 className="font-semibold text-wood-dark">
+                    {dict.home.craftPoint1Title}
+                  </h3>
                   <p className="text-xs sm:text-sm text-wood-charcoal/75 mt-0.5">
                     {dict.home.craftPoint1Desc}
                   </p>
@@ -280,7 +382,9 @@ export default async function HomePage({
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-wood-dark">{dict.home.craftPoint2Title}</h4>
+                  <h3 className="font-semibold text-wood-dark">
+                    {dict.home.craftPoint2Title}
+                  </h3>
                   <p className="text-xs sm:text-sm text-wood-charcoal/75 mt-0.5">
                     {dict.home.craftPoint2Desc}
                   </p>
@@ -292,7 +396,9 @@ export default async function HomePage({
                   <Ruler className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-wood-dark">{dict.home.craftPoint3Title}</h4>
+                  <h3 className="font-semibold text-wood-dark">
+                    {dict.home.craftPoint3Title}
+                  </h3>
                   <p className="text-xs sm:text-sm text-wood-charcoal/75 mt-0.5">
                     {dict.home.craftPoint3Desc}
                   </p>
@@ -317,29 +423,37 @@ export default async function HomePage({
           <div className="lg:col-span-6 grid grid-cols-2 gap-4">
             <img
               src="/uploads/posts/xuong-che-tac-khung-sofa.webp"
-              alt="Xưởng chế tác khung sofa gỗ"
+              alt="Xưởng chế tác đồ decor gỗ thủ công và khung sofa gỗ nguyên khối tại Wooden Decor"
               loading="lazy"
+              decoding="async"
               className="rounded-2xl object-cover aspect-[4/5] w-full shadow-sm border border-wood-light/40"
             />
             <img
               src="/uploads/products/giuong-ngu-go-oc-cho-duong-cong-1.webp"
-              alt="Nghệ nhân chà nhám thủ công tại xưởng"
+              alt="Nghệ nhân chà nhám thủ công giường ngủ và đồ decor gỗ óc chó tự nhiên tại xưởng"
               loading="lazy"
+              decoding="async"
               className="rounded-2xl object-cover aspect-[4/5] w-full mt-8 shadow-sm border border-wood-light/40"
             />
           </div>
         </div>
       </section>
 
-      {/* 6. KHỐI BÀI ĐĂNG CẢM HỨNG & NHẬT KÝ XƯỞNG MỚI NHẤT (Mục 15.4 URD) */}
+      {/* 6. KHỐI BÀI ĐĂNG CẢM HỨNG & NHẬT KÝ XƯỞNG MỚI NHẤT */}
       {latestPosts.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4 mb-8 sm:mb-12">
+        <section
+          aria-labelledby="home-inspiration-heading"
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+        >
+          <header className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4 mb-8 sm:mb-12">
             <div className="space-y-2 max-w-2xl">
               <p className="text-xs uppercase tracking-[0.2em] text-wood-medium font-semibold">
                 {locale === "en" ? "Daily Workshop Journal" : "Cập nhật hằng ngày"}
               </p>
-              <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-wood-dark">
+              <h2
+                id="home-inspiration-heading"
+                className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-wood-dark"
+              >
                 {dict.home.inspirationTitle}
               </h2>
               <p className="text-wood-charcoal/75 text-sm sm:text-base">
@@ -353,67 +467,81 @@ export default async function HomePage({
               <span>{dict.home.viewAll}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
-          </div>
+          </header>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-8">
             {latestPosts.map((post) => {
               const title = tField(post.titleVi, post.titleEn, locale);
               const excerpt = tField(post.excerptVi, post.excerptEn, locale);
               return (
-                <Link
+                <article
                   key={post.id}
-                  href={`/${locale}/cam-hung/${post.slug}`}
-                  className="group flex flex-col bg-wood-white rounded-2xl overflow-hidden border border-wood-light/50 hover:border-wood-medium transition-all"
+                  className="flex flex-col bg-wood-white rounded-2xl overflow-hidden border border-wood-light/50 hover:border-wood-medium transition-all"
                 >
-                  <div className="aspect-[16/10] bg-wood-cream overflow-hidden">
-                    <img
-                      src={post.coverImage || "/uploads/logo/logo.webp"}
-                      alt={title}
-                      loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
-                  <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
-                    <div>
-                      <span className="text-xs text-wood-medium">
-                        {new Date(post.publishedAt).toLocaleDateString(
-                          locale === "en" ? "en-US" : "vi-VN"
-                        )}
-                      </span>
-                      <h3 className="font-serif text-lg font-bold text-wood-charcoal group-hover:text-wood-dark mt-1 line-clamp-2">
-                        {title}
-                      </h3>
-                      <p className="text-sm text-wood-charcoal/75 mt-2 line-clamp-3">
-                        {excerpt}
-                      </p>
+                  <Link
+                    href={`/${locale}/cam-hung/${post.slug}`}
+                    className="group flex flex-col flex-1"
+                  >
+                    <div className="aspect-[16/10] bg-wood-cream overflow-hidden">
+                      <img
+                        src={post.coverImage || "/uploads/logo/logo.webp"}
+                        alt={`${title} - Cảm hứng đồ decor gỗ thủ công Wooden Decor`}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
                     </div>
-                    <span className="text-xs font-semibold text-wood-dark group-hover:translate-x-1 transition-transform">
-                      {locale === "en" ? "Read article →" : "Đọc bài viết →"}
-                    </span>
-                  </div>
-                </Link>
+                    <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
+                      <div>
+                        <time
+                          dateTime={new Date(post.publishedAt).toISOString()}
+                          className="text-xs text-wood-medium"
+                        >
+                          {new Date(post.publishedAt).toLocaleDateString(
+                            locale === "en" ? "en-US" : "vi-VN"
+                          )}
+                        </time>
+                        <h3 className="font-serif text-lg font-bold text-wood-charcoal group-hover:text-wood-dark mt-1 line-clamp-2">
+                          {title}
+                        </h3>
+                        <p className="text-sm text-wood-charcoal/75 mt-2 line-clamp-3">
+                          {excerpt}
+                        </p>
+                      </div>
+                      <span className="text-xs font-semibold text-wood-dark group-hover:translate-x-1 transition-transform">
+                        {locale === "en" ? "Read article →" : "Đọc bài viết →"}
+                      </span>
+                    </div>
+                  </Link>
+                </article>
               );
             })}
           </div>
         </section>
       )}
 
-      {/* 7. KHỐI LIÊN HỆ & BẢN ĐỒ SHOWROOM (Mục 5.2 URD) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* 7. KHỐI LIÊN HỆ & BẢN ĐỒ SHOWROOM */}
+      <section
+        aria-labelledby="home-contact-heading"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
         <div className="rounded-3xl bg-wood-dark text-white p-6 sm:p-10 lg:p-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-7 space-y-5">
-            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
+            <h2
+              id="home-contact-heading"
+              className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight"
+            >
               {dict.home.contactBannerTitle}
             </h2>
             <p className="text-wood-cream/85 text-sm sm:text-base leading-relaxed">
               {dict.home.contactBannerSubtitle}
             </p>
-            <div className="space-y-2 text-sm text-wood-cream/90 pt-1">
+            <address className="not-italic space-y-2 text-sm text-wood-cream/90 pt-1">
               <p className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-wood-light shrink-0 mt-0.5" />
                 <span>{siteConfig.address}</span>
               </p>
-            </div>
+            </address>
             <div className="pt-3 flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4">
               <a
                 href={`tel:${siteConfig.phone.replace(/\s+/g, "")}`}
@@ -450,6 +578,6 @@ export default async function HomePage({
           </div>
         </div>
       </section>
-    </div>
+    </article>
   );
 }

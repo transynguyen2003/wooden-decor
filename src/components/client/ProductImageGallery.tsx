@@ -77,7 +77,13 @@ export default function ProductImageGallery({
       >
         <img
           src={currentImage.url}
-          alt={currentImage.alt || productName}
+          alt={
+            currentImage.alt ||
+            `${productName} - Đồ decor gỗ thủ công và nội thất gỗ tự nhiên Wooden Decor`
+          }
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
           onClick={() => setLightboxOpen(true)}
           className="w-full h-full object-cover cursor-zoom-in transition-transform duration-500"
         />
@@ -138,7 +144,12 @@ export default function ProductImageGallery({
             >
               <img
                 src={img.url}
-                alt={img.alt || `${productName} ${idx + 1}`}
+                alt={
+                  img.alt ||
+                  `${productName} - Ảnh chi tiết góc ${idx + 1} đồ decor gỗ thủ công`
+                }
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover"
               />
             </button>

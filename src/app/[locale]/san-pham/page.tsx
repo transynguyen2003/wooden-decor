@@ -1,12 +1,40 @@
 import React, { Suspense } from "react";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getDictionary, isValidLocale, Locale } from "@/lib/i18n";
 import { getSiteConfig } from "@/lib/settings";
+import { buildPageMetadata } from "@/lib/seo";
 import ProductCatalogClient, {
   CatalogProductItem,
 } from "@/components/client/ProductCatalogClient";
 
 export const revalidate = 60;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale: rawLocale } = await params;
+  const locale: Locale = isValidLocale(rawLocale) ? rawLocale : "vi";
+
+  const title =
+    locale === "en"
+      ? "Handcrafted Wood Decor & Furniture Catalog | Wooden Decor"
+      : "Sản Phẩm Đồ Decor Gỗ Thủ Công & Nội Thất | Wooden Decor";
+
+  const description =
+    locale === "en"
+      ? "Explore our catalog of handcrafted solid wood decor, walnut sofas, infinity coffee tables, beds, and bespoke shelves crafted directly in our workshop."
+      : "Khám phá danh mục đồ decor gỗ thủ công, sofa gỗ óc chó, bàn trà nguyên khối, giường ngủ và kệ trang trí chế tác tinh xảo trực tiếp tại xưởng Thiên An.";
+
+  return buildPageMetadata({
+    locale,
+    path: "/san-pham",
+    title,
+    description,
+  });
+}
 
 export default async function ProductListPage({
   params,

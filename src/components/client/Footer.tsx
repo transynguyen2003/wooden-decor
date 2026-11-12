@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { MapPin, Clock, Phone, Mail } from "lucide-react";
+import { MapPin, Phone, Mail } from "lucide-react";
 import { Locale } from "@/lib/i18n";
 import { SiteConfig } from "@/lib/settings";
 import { ZaloIcon, FacebookIcon, TikTokIcon } from "./SocialIcons";
@@ -33,30 +33,37 @@ export default function Footer({ locale, siteConfig, dict }: FooterProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10">
           {/* Cột 1: Thương hiệu */}
-          <div className="space-y-4">
+          <section aria-label={siteConfig.brandName} className="space-y-4">
             <div className="space-y-2.5">
               <img
                 src={siteConfig.logoUrl || "/uploads/logo/logo-thien-an.webp"}
-                alt={siteConfig.brandName}
+                alt={`${siteConfig.brandName} - Xưởng đồ decor gỗ thủ công và nội thất gỗ tự nhiên`}
+                loading="lazy"
+                decoding="async"
                 className="h-14 sm:h-16 w-auto max-w-[250px] object-contain"
               />
-              <p className="text-xs font-medium text-wood-medium">{siteConfig.slogan}</p>
+              <p className="text-xs font-medium text-wood-medium">
+                {siteConfig.slogan}
+              </p>
             </div>
             <p className="text-sm text-wood-charcoal/80 leading-relaxed">
               {locale === "en"
                 ? "Bespoke solid wood furniture handcrafted in Vietnam. Direct showroom & workshop consultation."
                 : "Chế tác nội thất gỗ tự nhiên nguyên khối thủ công. Tư vấn và đặt đóng trực tiếp tại xưởng."}
             </p>
-          </div>
+          </section>
 
           {/* Cột 2: Liên kết nhanh */}
-          <div>
-            <h4 className="font-serif text-base font-semibold text-wood-dark mb-4">
+          <nav aria-label={dict.footer.quickLinks}>
+            <h2 className="font-serif text-base font-semibold text-wood-dark mb-4">
               {dict.footer.quickLinks}
-            </h4>
+            </h2>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link href={`/${locale}`} className="hover:text-wood-medium transition-colors">
+                <Link
+                  href={`/${locale}`}
+                  className="hover:text-wood-medium transition-colors"
+                >
                   {dict.nav.home}
                 </Link>
               </li>
@@ -101,42 +108,44 @@ export default function Footer({ locale, siteConfig, dict }: FooterProps) {
                 </Link>
               </li>
             </ul>
-          </div>
+          </nav>
 
           {/* Cột 3: Địa chỉ Showroom */}
-          <div className="space-y-4">
-            <h4 className="font-serif text-base font-semibold text-wood-dark mb-4">
+          <section aria-label={dict.footer.address} className="space-y-4">
+            <h2 className="font-serif text-base font-semibold text-wood-dark mb-4">
               {dict.footer.address}
-            </h4>
-            <div className="flex items-start gap-3 text-sm text-wood-charcoal/85">
+            </h2>
+            <address className="not-italic flex items-start gap-3 text-sm text-wood-charcoal/85">
               <MapPin className="w-4 h-4 text-wood-medium shrink-0 mt-1" />
               <span>{siteConfig.address}</span>
-            </div>
-          </div>
+            </address>
+          </section>
 
           {/* Cột 4: Liên hệ trực tiếp & Mạng xã hội */}
-          <div className="space-y-4">
-            <h4 className="font-serif text-base font-semibold text-wood-dark mb-4">
+          <section aria-label={dict.footer.hotline} className="space-y-4">
+            <h2 className="font-serif text-base font-semibold text-wood-dark mb-4">
               {dict.footer.hotline}
-            </h4>
-            <div className="flex items-center gap-3 text-sm">
-              <Phone className="w-4 h-4 text-wood-medium shrink-0" />
-              <a
-                href={`tel:${siteConfig.phone.replace(/\s+/g, "")}`}
-                className="font-semibold text-wood-dark hover:text-wood-medium text-base"
-              >
-                {siteConfig.phone}
-              </a>
-            </div>
-            <div className="flex items-center gap-3 text-sm">
-              <Mail className="w-4 h-4 text-wood-medium shrink-0" />
-              <a
-                href={`mailto:${siteConfig.email}`}
-                className="hover:text-wood-medium transition-colors break-all"
-              >
-                {siteConfig.email}
-              </a>
-            </div>
+            </h2>
+            <address className="not-italic space-y-4">
+              <div className="flex items-center gap-3 text-sm">
+                <Phone className="w-4 h-4 text-wood-medium shrink-0" />
+                <a
+                  href={`tel:${siteConfig.phone.replace(/\s+/g, "")}`}
+                  className="font-semibold text-wood-dark hover:text-wood-medium text-base"
+                >
+                  {siteConfig.phone}
+                </a>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <Mail className="w-4 h-4 text-wood-medium shrink-0" />
+                <a
+                  href={`mailto:${siteConfig.email}`}
+                  className="hover:text-wood-medium transition-colors break-all"
+                >
+                  {siteConfig.email}
+                </a>
+              </div>
+            </address>
             <div className="pt-2 flex flex-wrap items-center gap-2.5 sm:gap-3">
               <a
                 href={`https://zalo.me/${siteConfig.zalo.replace(/\D/g, "")}`}
@@ -170,7 +179,7 @@ export default function Footer({ locale, siteConfig, dict }: FooterProps) {
                 </a>
               )}
             </div>
-          </div>
+          </section>
         </div>
 
         <div className="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-wood-light/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-wood-charcoal/70 text-center sm:text-left">
@@ -179,7 +188,9 @@ export default function Footer({ locale, siteConfig, dict }: FooterProps) {
             href="/admin"
             className="text-wood-medium hover:text-wood-dark underline underline-offset-4"
           >
-            {locale === "en" ? "Store Owner Portal (/admin)" : "Trang Quản Trị Chủ Shop (/admin)"}
+            {locale === "en"
+              ? "Store Owner Portal (/admin)"
+              : "Trang Quản Trị Chủ Shop (/admin)"}
           </Link>
         </div>
       </div>

@@ -185,13 +185,18 @@ export default function Navbar({
           >
             <img
               src={logoUrl || "/uploads/logo/logo-thien-an.webp"}
-              alt={brandName}
+              alt={`${brandName} - Đồ decor gỗ thủ công và nội thất gỗ tự nhiên`}
+              loading="eager"
+              decoding="async"
               className="h-11 sm:h-13 lg:h-14 w-auto max-w-[175px] sm:max-w-[235px] object-contain transition-transform duration-300 group-hover:scale-[1.02]"
             />
           </Link>
 
           {/* Menu ngang chỉ hiện trên laptop (≥1024px), các tab không bao giờ xuống dòng */}
-          <nav className="hidden lg:flex items-center justify-center gap-4 xl:gap-7">
+          <nav
+            aria-label="Điều hướng chính"
+            className="hidden lg:flex items-center justify-center gap-4 xl:gap-7"
+          >
             {navLinks.map((item) => {
               const active = isActive(item.href, item.exact);
               return (
@@ -309,7 +314,10 @@ export default function Navbar({
 
       {/* Menu xổ xuống cho điện thoại & tablet */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-wood-white border-b border-wood-light/50 px-4 sm:px-6 pt-2 pb-6 animate-fade-up max-h-[calc(100vh-4rem)] overflow-y-auto">
+        <nav
+          aria-label="Menu điều hướng di động"
+          className="lg:hidden bg-wood-white border-b border-wood-light/50 px-4 sm:px-6 pt-2 pb-6 animate-fade-up max-h-[calc(100vh-4rem)] overflow-y-auto"
+        >
           <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2">
             {navLinks.map((item) => {
               const active = isActive(item.href, item.exact);
@@ -351,7 +359,7 @@ export default function Navbar({
               </span>
             </a>
           </div>
-        </div>
+        </nav>
       )}
     </header>
   );
